@@ -1,0 +1,2722 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>FluxoraOS 16.2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@100;200;300;400;500;600;700&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;}
+:root{
+--bg0:#060608;--bg1:#0d0d12;--bg2:#13131a;--bg3:#1a1a24;
+--s1:#7c5cfc;--s2:#5c9eff;--s3:#ff5c8d;--s4:#5cffd4;
+--t1:#ffffff;--t2:rgba(255,255,255,0.7);--t3:rgba(255,255,255,0.4);
+--glass:rgba(255,255,255,0.06);--glass2:rgba(255,255,255,0.12);
+--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);
+--red:#ff3b30;--green:#30d158;--yellow:#ffd60a;--orange:#ff9f0a;
+--blur:blur(24px);
+--r-sm:12px;--r-md:18px;--r-lg:24px;--r-xl:32px;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:#000;}
+body{display:flex;justify-content:center;align-items:center;background:radial-gradient(ellipse at 30% 20%,#1a0a3a 0%,#000 60%);}
+
+/* ===== PHONE FRAME ===== */
+.frame{
+  width:390px;height:844px;
+  background:var(--bg0);
+  border-radius:52px;
+  overflow:hidden;
+  position:relative;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.08),0 40px 80px rgba(0,0,0,0.9),inset 0 1px 0 rgba(255,255,255,0.06);
+}
+.notch{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:126px;height:37px;background:#000;border-radius:0 0 20px 20px;z-index:9999;
+}
+.dynamic-island{
+  position:absolute;top:12px;left:50%;transform:translateX(-50%);
+  width:126px;height:37px;background:#000;border-radius:20px;z-index:9999;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  overflow:hidden;
+}
+.dynamic-island.expand{width:340px;height:100px;border-radius:26px;}
+.di-cam{width:10px;height:10px;border-radius:50%;background:#1a1a1a;position:relative;}
+.di-cam::before{content:'';width:4px;height:4px;border-radius:50%;background:#0d3a5c;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);}
+.di-content{display:none;flex:1;padding:0 16px;color:#fff;font-family:'Syne',sans-serif;}
+.dynamic-island.expand .di-content{display:flex;align-items:center;gap:12px;}
+
+/* ===== PAGES ===== */
+.page{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  display:none;flex-direction:column;
+  font-family:'Syne',sans-serif;
+}
+.page.active{display:flex;}
+.page.slide-out{animation:slideOut 0.35s cubic-bezier(0.4,0,0.2,1) forwards;}
+.page.slide-in{animation:slideIn 0.35s cubic-bezier(0.4,0,0.2,1) forwards;}
+@keyframes slideOut{to{transform:translateX(-30%);opacity:0.3;}}
+@keyframes slideIn{from{transform:translateX(100%);}to{transform:translateX(0);}}
+@keyframes slideBack{to{transform:translateX(100%);}}
+@keyframes slideBackIn{from{transform:translateX(-30%);opacity:0.3;}to{transform:translateX(0);opacity:1;}}
+
+/* ===== STATUS BAR ===== */
+.status-bar{
+  height:50px;display:flex;align-items:flex-end;justify-content:space-between;
+  padding:0 28px 8px;position:relative;z-index:100;flex-shrink:0;
+}
+.sb-time{font-size:15px;font-weight:600;letter-spacing:-0.3px;color:var(--t1);}
+.sb-icons{display:flex;align-items:center;gap:6px;}
+.sb-icons svg{width:18px;height:12px;fill:var(--t1);}
+.sb-signal{font-size:12px;font-weight:600;color:var(--t1);}
+.sb-bat{display:flex;align-items:center;gap:2px;}
+.bat-body{width:22px;height:12px;border:1.5px solid rgba(255,255,255,0.5);border-radius:3px;position:relative;padding:1.5px;}
+.bat-tip{width:2px;height:6px;background:rgba(255,255,255,0.5);border-radius:0 1px 1px 0;}
+.bat-fill{height:100%;border-radius:1.5px;background:var(--green);}
+.bat-fill.low{background:var(--red);}
+
+/* ===== BOOT SCREEN ===== */
+#boot{background:#000;justify-content:center;align-items:center;}
+.boot-logo{
+  font-family:'Syne',sans-serif;font-size:48px;font-weight:800;
+  background:linear-gradient(135deg,#7c5cfc,#5c9eff,#5cffd4);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:bootPulse 1.5s ease-in-out infinite;
+  opacity:0;
+}
+.boot-sub{color:var(--t3);font-size:14px;letter-spacing:3px;margin-top:8px;opacity:0;font-family:'JetBrains Mono',monospace;}
+.boot-bar{width:120px;height:2px;background:rgba(255,255,255,0.1);border-radius:1px;margin-top:60px;overflow:hidden;opacity:0;}
+.boot-fill{height:100%;background:linear-gradient(90deg,#7c5cfc,#5c9eff);width:0%;border-radius:1px;transition:width 0.3s ease;}
+@keyframes bootPulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.8;transform:scale(1.02);}}
+
+/* ===== LOCK SCREEN ===== */
+#lock{position:relative;overflow:hidden;}
+.lock-bg{
+  position:absolute;inset:0;
+  background:linear-gradient(160deg,#0f0a1e 0%,#12102a 40%,#0a1628 100%);
+}
+.lock-glow{
+  position:absolute;width:300px;height:300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(124,92,252,0.3),transparent 70%);
+  top:10%;left:50%;transform:translateX(-50%);
+  animation:glowPulse 4s ease-in-out infinite;
+}
+.lock-glow2{
+  position:absolute;width:200px;height:200px;border-radius:50%;
+  background:radial-gradient(circle,rgba(92,158,255,0.2),transparent 70%);
+  top:30%;right:-50px;animation:glowPulse 4s ease-in-out infinite 2s;
+}
+@keyframes glowPulse{0%,100%{opacity:0.6;transform:translateX(-50%) scale(1);}50%{opacity:1;transform:translateX(-50%) scale(1.1);}}
+.lock-content{position:relative;z-index:2;display:flex;flex-direction:column;height:100%;}
+.lock-widgets{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding-top:60px;}
+.lock-time{font-size:88px;font-weight:200;letter-spacing:-4px;text-align:center;line-height:1;color:#fff;}
+.lock-date{font-size:18px;color:rgba(255,255,255,0.8);text-align:center;margin-top:8px;font-weight:400;}
+.lock-notifs{width:100%;padding:0 20px;margin-top:24px;display:flex;flex-direction:column;gap:10px;}
+.lock-notif{
+  background:rgba(255,255,255,0.08);backdrop-filter:var(--blur);
+  border:1px solid var(--border);border-radius:16px;
+  padding:14px 16px;display:flex;align-items:center;gap:12px;
+  animation:notifSlide 0.4s ease;
+}
+@keyframes notifSlide{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.notif-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.notif-text{flex:1;}
+.notif-app{font-size:12px;color:var(--t3);margin-bottom:2px;}
+.notif-msg{font-size:14px;color:var(--t1);}
+.lock-bottom{padding:0 20px 50px;display:flex;flex-direction:column;align-items:center;gap:20px;}
+.swipe-hint{
+  display:flex;align-items:center;gap:8px;
+  color:rgba(255,255,255,0.5);font-size:14px;
+  animation:swipeBounce 2s ease-in-out infinite;
+}
+@keyframes swipeBounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+.swipe-arrow{font-size:20px;}
+.lock-quick{display:flex;gap:32px;}
+.lock-qbtn{
+  width:56px;height:56px;border-radius:50%;
+  background:rgba(255,255,255,0.1);backdrop-filter:var(--blur);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  font-size:22px;cursor:pointer;transition:all 0.2s;color:var(--t1);
+}
+.lock-qbtn:active{transform:scale(0.92);background:rgba(255,255,255,0.2);}
+
+/* ===== HOME SCREEN ===== */
+#home{position:relative;overflow:hidden;}
+.home-bg{position:absolute;inset:0;background:linear-gradient(160deg,#0a0a14 0%,#0d0d1a 50%,#0a1020 100%);}
+.home-particles{position:absolute;inset:0;pointer-events:none;}
+.home-content{position:relative;z-index:2;flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.home-sb{height:50px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 8px;flex-shrink:0;}
+.home-clock{text-align:center;padding:20px 0 16px;flex-shrink:0;}
+.home-clock .t{font-size:52px;font-weight:200;letter-spacing:-2px;color:#fff;}
+.home-clock .d{font-size:15px;color:var(--t2);margin-top:4px;}
+.home-search{
+  margin:0 20px 20px;
+  background:rgba(255,255,255,0.07);
+  backdrop-filter:var(--blur);border:1px solid var(--border);
+  border-radius:28px;padding:14px 20px;
+  display:flex;align-items:center;gap:12px;
+  transition:all 0.3s;flex-shrink:0;cursor:pointer;
+}
+.home-search:active{background:rgba(255,255,255,0.12);}
+.search-ic{font-size:16px;color:var(--t3);}
+.search-txt{font-size:16px;color:var(--t3);flex:1;}
+.apps-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 20px;}
+.apps-scroll::-webkit-scrollbar{display:none;}
+.apps-page{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 4px;padding-bottom:20px;}
+.app-item{
+  display:flex;flex-direction:column;align-items:center;
+  padding:10px 4px;border-radius:20px;cursor:pointer;
+  transition:transform 0.15s ease;position:relative;
+}
+.app-item:active{transform:scale(0.88);}
+.app-ic{
+  width:64px;height:64px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;margin-bottom:6px;
+  box-shadow:0 4px 16px rgba(0,0,0,0.4);
+  flex-shrink:0;
+}
+.app-lbl{font-size:11.5px;color:var(--t2);text-align:center;font-weight:500;line-height:1.2;max-width:68px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.badge{
+  position:absolute;top:6px;right:8px;
+  min-width:18px;height:18px;border-radius:9px;
+  background:var(--red);color:#fff;font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 4px;border:2px solid var(--bg0);
+}
+.dock{
+  position:absolute;bottom:0;left:0;right:0;
+  height:120px;padding:14px 24px 32px;
+  display:flex;align-items:flex-start;
+  background:linear-gradient(to top,rgba(0,0,0,0.8),transparent);
+  backdrop-filter:var(--blur);
+}
+.dock-inner{
+  flex:1;background:rgba(255,255,255,0.07);backdrop-filter:var(--blur);
+  border:1px solid var(--border);border-radius:28px;
+  display:flex;align-items:center;justify-content:space-around;
+  padding:8px 12px;height:72px;
+}
+.dock-app{
+  display:flex;flex-direction:column;align-items:center;
+  cursor:pointer;padding:0 8px;transition:transform 0.15s;
+}
+.dock-app:active{transform:scale(0.88);}
+.dock-app .app-ic{width:52px;height:52px;margin-bottom:0;}
+
+/* ===== APP SHELLS ===== */
+.app-shell{background:var(--bg0);}
+.app-nav{
+  height:88px;display:flex;align-items:flex-end;justify-content:space-between;
+  padding:0 20px 14px;flex-shrink:0;
+  border-bottom:1px solid var(--border);
+  backdrop-filter:var(--blur);background:rgba(6,6,8,0.8);position:relative;z-index:10;
+}
+.nav-back{
+  width:36px;height:36px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--glass);border:1px solid var(--border);
+  font-size:16px;cursor:pointer;transition:all 0.15s;color:var(--t1);
+}
+.nav-back:active{background:var(--glass2);}
+.nav-title{font-size:18px;font-weight:700;color:var(--t1);position:absolute;left:50%;bottom:14px;transform:translateX(-50%);}
+.nav-action{font-size:14px;font-weight:600;color:var(--s1);cursor:pointer;}
+.app-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:20px;}
+.app-body::-webkit-scrollbar{display:none;}
+
+/* ===== SETTINGS APP ===== */
+#settings{background:var(--bg0);}
+.settings-hero{
+  padding:28px 20px 16px;display:flex;align-items:center;gap:16px;
+  border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.settings-avatar{
+  width:68px;height:68px;border-radius:34px;
+  background:linear-gradient(135deg,var(--s1),var(--s2));
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+}
+.settings-user-info h2{font-size:20px;font-weight:700;color:var(--t1);}
+.settings-user-info p{font-size:13px;color:var(--t2);margin-top:2px;}
+.s-section{margin-bottom:28px;}
+.s-label{font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;padding:0 4px;}
+.s-group{background:var(--glass);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;}
+.s-row{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 18px;border-bottom:1px solid var(--border);
+  cursor:pointer;transition:background 0.15s;
+}
+.s-row:last-child{border-bottom:none;}
+.s-row:active{background:var(--glass2);}
+.s-ico{
+  width:34px;height:34px;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;
+}
+.s-main{flex:1;}
+.s-name{font-size:16px;color:var(--t1);font-weight:500;}
+.s-desc{font-size:12px;color:var(--t3);margin-top:2px;}
+.s-right{display:flex;align-items:center;gap:8px;color:var(--t3);font-size:14px;}
+.s-arrow{color:var(--t3);font-size:14px;}
+.toggle-wrap{position:relative;width:50px;height:30px;flex-shrink:0;}
+.toggle-wrap input{opacity:0;width:0;height:0;position:absolute;}
+.toggle-slider{
+  position:absolute;inset:0;border-radius:15px;
+  background:rgba(255,255,255,0.15);cursor:pointer;transition:all 0.3s;
+}
+.toggle-slider::after{
+  content:'';position:absolute;width:24px;height:24px;border-radius:12px;
+  background:#fff;top:3px;left:3px;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  box-shadow:0 2px 6px rgba(0,0,0,0.4);
+}
+.toggle-wrap input:checked ~ .toggle-slider{background:linear-gradient(135deg,var(--s1),var(--s2));}
+.toggle-wrap input:checked ~ .toggle-slider::after{transform:translateX(20px);}
+.s-badge-val{
+  background:var(--glass2);color:var(--t2);
+  font-size:13px;padding:3px 10px;border-radius:20px;
+  font-family:'JetBrains Mono',monospace;
+}
+/* Device Info */
+.device-info-card{
+  background:var(--glass);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:20px;margin-bottom:20px;
+}
+.di-logo{text-align:center;font-family:'Syne',sans-serif;font-size:32px;font-weight:800;
+  background:linear-gradient(135deg,var(--s1),var(--s2),var(--s4));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:4px;}
+.di-model{text-align:center;color:var(--t2);font-size:13px;margin-bottom:20px;}
+.di-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.di-cell{background:var(--bg2);border-radius:12px;padding:12px;}
+.di-cell-label{font-size:11px;color:var(--t3);margin-bottom:4px;}
+.di-cell-val{font-size:14px;color:var(--t1);font-weight:600;font-family:'JetBrains Mono',monospace;}
+
+/* Appearance Settings */
+.color-picker-row{display:flex;gap:10px;flex-wrap:wrap;padding:4px 0;}
+.color-swatch{
+  width:36px;height:36px;border-radius:50%;cursor:pointer;
+  transition:transform 0.15s;border:3px solid transparent;
+}
+.color-swatch.active{border-color:#fff;transform:scale(1.15);}
+.color-swatch:active{transform:scale(0.9);}
+.wallpaper-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;}
+.wp-thumb{
+  aspect-ratio:9/16;border-radius:12px;cursor:pointer;
+  border:2px solid transparent;transition:all 0.2s;overflow:hidden;
+}
+.wp-thumb.active{border-color:var(--s1);}
+.wp-thumb:active{transform:scale(0.95);}
+
+/* ===== CAMERA APP ===== */
+#camera{background:#000;position:relative;}
+.cam-viewfinder{position:absolute;inset:0;overflow:hidden;}
+#camVideo{width:100%;height:100%;object-fit:cover;}
+.cam-overlay{position:absolute;inset:0;pointer-events:none;}
+.cam-grid-lines{
+  position:absolute;inset:0;
+  background-image:linear-gradient(rgba(255,255,255,0.12) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.12) 1px,transparent 1px);
+  background-size:33.33% 33.33%;
+}
+.cam-corner{
+  position:absolute;width:24px;height:24px;border-color:rgba(255,255,255,0.8);border-style:solid;
+}
+.cam-corner.tl{top:30%;left:30%;border-width:2px 0 0 2px;}
+.cam-corner.tr{top:30%;right:30%;border-width:2px 2px 0 0;}
+.cam-corner.bl{bottom:30%;left:30%;border-width:0 0 2px 2px;}
+.cam-corner.br{bottom:30%;right:30%;border-width:0 2px 2px 0;}
+.cam-ui{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:space-between;pointer-events:none;}
+.cam-top{display:flex;align-items:center;justify-content:space-between;padding:60px 24px 20px;pointer-events:all;}
+.cam-top-btn{
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(0,0,0,0.4);backdrop-filter:var(--blur);
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;cursor:pointer;color:#fff;border:none;transition:all 0.2s;
+}
+.cam-top-btn:active{background:rgba(255,255,255,0.2);}
+.cam-modes{
+  display:flex;gap:28px;justify-content:center;padding:16px;pointer-events:all;
+  background:linear-gradient(to top,rgba(0,0,0,0.6),transparent);
+}
+.cam-mode{
+  font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);
+  cursor:pointer;padding:4px 8px;transition:color 0.2s;letter-spacing:1px;
+}
+.cam-mode.active{color:#ffd60a;}
+.cam-bottom{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 40px 50px;background:rgba(0,0,0,0.5);
+  backdrop-filter:var(--blur);pointer-events:all;
+}
+.cam-thumb{
+  width:56px;height:56px;border-radius:12px;
+  background:rgba(255,255,255,0.1);overflow:hidden;
+  border:2px solid rgba(255,255,255,0.3);cursor:pointer;
+}
+.cam-thumb img{width:100%;height:100%;object-fit:cover;}
+.cam-shutter{
+  width:80px;height:80px;border-radius:50%;
+  background:#fff;border:4px solid rgba(255,255,255,0.4);
+  cursor:pointer;transition:transform 0.1s;
+  display:flex;align-items:center;justify-content:center;
+}
+.cam-shutter:active{transform:scale(0.92);}
+.cam-shutter-inner{width:66px;height:66px;border-radius:50%;background:#fff;}
+.cam-flip{
+  width:56px;height:56px;border-radius:50%;
+  background:rgba(255,255,255,0.15);backdrop-filter:var(--blur);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;cursor:pointer;color:#fff;border:none;transition:all 0.3s;
+}
+.cam-flip:active{transform:rotate(180deg);background:rgba(255,255,255,0.25);}
+.cam-flash{
+  position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;
+  transition:opacity 0.05s;z-index:100;
+}
+.cam-flash.shoot{opacity:1;transition:opacity 0.05s;}
+.cam-no-perm{
+  position:absolute;inset:0;background:var(--bg0);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:50;
+}
+.cam-no-perm h3{color:var(--t1);font-size:18px;font-weight:600;}
+.cam-no-perm p{color:var(--t2);font-size:14px;text-align:center;max-width:240px;}
+.btn-primary{
+  background:linear-gradient(135deg,var(--s1),var(--s2));
+  color:#fff;border:none;padding:14px 28px;border-radius:14px;
+  font-size:16px;font-weight:600;font-family:'Syne',sans-serif;cursor:pointer;
+  transition:transform 0.15s;
+}
+.btn-primary:active{transform:scale(0.96);}
+
+/* ===== GALLERY ===== */
+#gallery{background:var(--bg0);}
+.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:0;}
+.gallery-cell{
+  aspect-ratio:1;overflow:hidden;cursor:pointer;position:relative;
+  transition:opacity 0.15s;
+}
+.gallery-cell:active{opacity:0.8;}
+.gallery-cell img{width:100%;height:100%;object-fit:cover;}
+.gallery-cell video{width:100%;height:100%;object-fit:cover;}
+.gallery-empty{
+  padding:60px 20px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+.gallery-empty-ic{font-size:48px;opacity:0.3;}
+.gallery-empty p{color:var(--t3);font-size:15px;}
+.photo-viewer{
+  position:absolute;inset:0;background:#000;z-index:200;
+  display:none;flex-direction:column;
+}
+.photo-viewer.active{display:flex;}
+.pv-nav{
+  height:88px;display:flex;align-items:flex-end;justify-content:space-between;
+  padding:0 20px 14px;
+}
+.pv-img{flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.pv-img img{max-width:100%;max-height:100%;object-fit:contain;}
+.pv-controls{
+  height:80px;display:flex;align-items:center;justify-content:space-around;
+  padding:0 24px;background:rgba(0,0,0,0.6);backdrop-filter:var(--blur);
+}
+.pv-btn{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  font-size:11px;color:var(--t2);cursor:pointer;
+  font-family:'Syne',sans-serif;
+}
+.pv-btn span{font-size:22px;}
+.pv-btn:active{color:#fff;}
+
+/* ===== MESSAGES ===== */
+#messages{background:var(--bg0);}
+.msg-list{display:flex;flex-direction:column;gap:2px;}
+.msg-row{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 18px;cursor:pointer;transition:background 0.15s;border-radius:0;
+}
+.msg-row:active{background:var(--glass);}
+.msg-avatar{
+  width:52px;height:52px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;
+}
+.msg-info{flex:1;min-width:0;}
+.msg-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;}
+.msg-name{font-size:16px;font-weight:600;color:var(--t1);}
+.msg-time{font-size:12px;color:var(--t3);}
+.msg-preview{font-size:14px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.msg-unread{width:10px;height:10px;border-radius:50%;background:var(--s2);flex-shrink:0;}
+/* Chat view */
+.chat-view{position:absolute;inset:0;background:var(--bg0);display:none;flex-direction:column;z-index:100;}
+.chat-view.active{display:flex;}
+.chat-header{
+  height:88px;display:flex;align-items:flex-end;gap:12px;
+  padding:0 20px 14px;border-bottom:1px solid var(--border);
+  background:rgba(6,6,8,0.9);backdrop-filter:var(--blur);
+}
+.chat-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;}
+.chat-hname{font-size:17px;font-weight:600;color:var(--t1);}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px;}
+.chat-messages::-webkit-scrollbar{display:none;}
+.bubble{max-width:72%;padding:11px 15px;border-radius:20px;font-size:15px;line-height:1.4;word-break:break-word;}
+.bubble.out{background:linear-gradient(135deg,var(--s1),var(--s2));color:#fff;align-self:flex-end;border-bottom-right-radius:6px;}
+.bubble.in{background:var(--bg3);color:var(--t1);align-self:flex-start;border-bottom-left-radius:6px;}
+.bubble-time{font-size:10px;opacity:0.6;margin-top:3px;text-align:right;}
+.chat-input-wrap{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px 32px;background:rgba(6,6,8,0.9);backdrop-filter:var(--blur);
+  border-top:1px solid var(--border);
+}
+.chat-input{
+  flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:22px;
+  padding:10px 16px;color:var(--t1);font-size:15px;font-family:'Syne',sans-serif;
+  outline:none;resize:none;max-height:100px;
+}
+.chat-send{
+  width:36px;height:36px;border-radius:50%;
+  background:linear-gradient(135deg,var(--s1),var(--s2));
+  border:none;color:#fff;font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:transform 0.15s;
+}
+.chat-send:active{transform:scale(0.9);}
+
+/* ===== PHONE APP ===== */
+#phone-app{background:var(--bg0);}
+.dialer-display{
+  text-align:center;padding:40px 20px 20px;
+  font-size:42px;font-weight:200;letter-spacing:3px;color:var(--t1);
+  min-height:100px;font-family:'JetBrains Mono',monospace;
+}
+.dialer-sub{font-size:14px;color:var(--t3);text-align:center;margin-bottom:20px;}
+.dialpad{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:0 24px;}
+.dial-key{
+  height:70px;border-radius:50%;
+  background:var(--glass);border:1px solid var(--border);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  cursor:pointer;transition:all 0.15s;
+}
+.dial-key:active{background:var(--glass2);transform:scale(0.92);}
+.dk-num{font-size:28px;font-weight:500;color:var(--t1);}
+.dk-let{font-size:10px;color:var(--t3);letter-spacing:1.5px;margin-top:1px;}
+.dialpad-actions{display:flex;justify-content:space-around;align-items:center;padding:20px 24px;}
+.dial-call{
+  width:72px;height:72px;border-radius:50%;
+  background:var(--green);display:flex;align-items:center;justify-content:center;
+  font-size:26px;cursor:pointer;transition:transform 0.15s;border:none;color:#fff;
+}
+.dial-call:active{transform:scale(0.92);}
+.dial-del{
+  width:56px;height:56px;border-radius:50%;background:var(--glass);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;color:var(--t1);
+}
+.dial-del:active{background:var(--glass2);}
+.recents-list{padding:0 4px;}
+.recent-item{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 16px;border-radius:14px;cursor:pointer;transition:background 0.15s;
+}
+.recent-item:active{background:var(--glass);}
+.recent-av{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;}
+.recent-info{flex:1;}
+.recent-name{font-size:15px;font-weight:600;color:var(--t1);}
+.recent-type{font-size:12px;margin-top:2px;}
+.recent-time{font-size:12px;color:var(--t3);}
+
+/* ===== NOTES APP ===== */
+#notes{background:var(--bg0);}
+.notes-list{display:flex;flex-direction:column;gap:10px;}
+.note-card{
+  background:var(--glass);border:1px solid var(--border);border-radius:var(--r-md);
+  padding:16px;cursor:pointer;transition:all 0.15s;
+}
+.note-card:active{background:var(--glass2);transform:scale(0.99);}
+.note-title{font-size:16px;font-weight:600;color:var(--t1);margin-bottom:4px;}
+.note-preview{font-size:13px;color:var(--t3);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.note-date{font-size:11px;color:var(--t3);margin-top:8px;}
+.note-editor{position:absolute;inset:0;background:var(--bg0);display:none;flex-direction:column;z-index:100;}
+.note-editor.active{display:flex;}
+.ne-nav{height:88px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 20px 14px;border-bottom:1px solid var(--border);}
+.ne-title-input{
+  width:100%;background:transparent;border:none;
+  font-size:24px;font-weight:700;color:var(--t1);font-family:'Syne',sans-serif;
+  padding:20px 20px 8px;outline:none;
+}
+.ne-body{flex:1;padding:0 20px;overflow-y:auto;}
+.ne-textarea{
+  width:100%;min-height:400px;background:transparent;border:none;
+  color:var(--t2);font-size:16px;font-family:'Syne',sans-serif;
+  outline:none;resize:none;line-height:1.7;
+}
+
+/* ===== WEATHER APP ===== */
+#weather-app{overflow:hidden;}
+.weather-bg{
+  position:absolute;inset:0;
+  background:linear-gradient(160deg,#0a1628 0%,#0d2140 40%,#0a2830 100%);
+}
+.weather-content{position:relative;z-index:2;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.weather-content::-webkit-scrollbar{display:none;}
+.weather-main{padding:30px 24px 20px;text-align:center;}
+.weather-city{font-size:22px;font-weight:600;color:var(--t1);margin-bottom:4px;}
+.weather-temp{font-size:96px;font-weight:100;color:#fff;line-height:1;letter-spacing:-4px;}
+.weather-desc{font-size:18px;color:rgba(255,255,255,0.7);margin-top:4px;}
+.weather-range{font-size:16px;color:rgba(255,255,255,0.5);margin-top:8px;}
+.weather-icon-big{font-size:80px;margin:16px 0;animation:floatWeather 3s ease-in-out infinite;}
+@keyframes floatWeather{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.weather-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:0 16px 20px;}
+.wx-card{
+  background:rgba(255,255,255,0.08);backdrop-filter:var(--blur);
+  border:1px solid rgba(255,255,255,0.1);border-radius:var(--r-md);padding:16px;
+}
+.wx-card-label{font-size:11px;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
+.wx-card-val{font-size:22px;font-weight:600;color:#fff;}
+.wx-card-sub{font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px;}
+.weather-hourly{padding:0 16px 16px;overflow:hidden;}
+.hourly-scroll{display:flex;gap:12px;overflow-x:auto;padding:4px 0;}
+.hourly-scroll::-webkit-scrollbar{display:none;}
+.hour-item{
+  flex-shrink:0;background:rgba(255,255,255,0.08);backdrop-filter:var(--blur);
+  border:1px solid rgba(255,255,255,0.1);border-radius:14px;
+  padding:12px;text-align:center;width:64px;
+}
+.h-time{font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:6px;}
+.h-icon{font-size:20px;margin-bottom:6px;}
+.h-temp{font-size:15px;font-weight:600;color:#fff;}
+.weather-forecast{padding:0 16px 100px;}
+.forecast-item{
+  display:flex;align-items:center;
+  padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.f-day{font-size:15px;color:var(--t2);width:80px;}
+.f-icon{font-size:20px;flex:1;text-align:center;}
+.f-range{font-size:15px;color:var(--t1);}
+.f-range span{color:rgba(255,255,255,0.4);}
+
+/* ===== CALCULATOR ===== */
+#calculator{background:#1c1c1e;}
+.calc-display{
+  padding:20px 24px;text-align:right;flex:0 0 auto;
+}
+.calc-expr{font-size:20px;color:rgba(255,255,255,0.5);min-height:30px;font-family:'JetBrains Mono',monospace;}
+.calc-result{font-size:72px;font-weight:300;color:#fff;font-family:'JetBrains Mono',monospace;line-height:1;}
+.calc-grid{
+  flex:1;display:grid;grid-template-columns:repeat(4,1fr);
+  gap:12px;padding:12px 16px 40px;
+  align-content:end;
+}
+.calc-btn{
+  height:80px;border-radius:50%;border:none;font-size:28px;font-weight:400;
+  cursor:pointer;transition:opacity 0.1s;display:flex;align-items:center;justify-content:center;
+  font-family:'Syne',sans-serif;
+}
+.calc-btn:active{opacity:0.7;}
+.calc-btn.num{background:#333336;color:#fff;}
+.calc-btn.op{background:#ff9f0a;color:#fff;}
+.calc-btn.fn{background:#505053;color:#fff;}
+.calc-btn.eq{background:#ff9f0a;color:#fff;}
+.calc-btn.zero{border-radius:40px;grid-column:span 2;justify-content:flex-start;padding-left:32px;}
+
+/* ===== APP STORE ===== */
+#store{background:var(--bg0);}
+.store-banner{
+  margin:0 -20px;padding:30px 20px;
+  background:linear-gradient(135deg,rgba(124,92,252,0.3),rgba(92,158,255,0.2));
+  border-bottom:1px solid var(--border);
+}
+.store-banner h2{font-size:22px;font-weight:700;color:var(--t1);}
+.store-banner p{font-size:14px;color:var(--t2);margin-top:4px;}
+.store-cats{display:flex;gap:8px;overflow-x:auto;padding:16px 0 8px;margin:0 -20px;padding-left:20px;}
+.store-cats::-webkit-scrollbar{display:none;}
+.store-cat{
+  flex-shrink:0;padding:8px 18px;border-radius:20px;
+  background:var(--glass);border:1px solid var(--border);
+  font-size:13px;color:var(--t2);cursor:pointer;transition:all 0.2s;
+}
+.store-cat.active{background:linear-gradient(135deg,var(--s1),var(--s2));color:#fff;border-color:transparent;}
+.store-cat:active{transform:scale(0.95);}
+.store-section-title{font-size:18px;font-weight:700;color:var(--t1);margin:20px 0 12px;}
+.store-featured{display:flex;flex-direction:column;gap:12px;}
+.store-feat-card{
+  background:var(--glass);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:20px;display:flex;gap:16px;cursor:pointer;transition:all 0.15s;
+}
+.store-feat-card:active{background:var(--glass2);transform:scale(0.99);}
+.store-feat-ic{
+  width:64px;height:64px;border-radius:16px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:28px;
+}
+.store-feat-info{flex:1;}
+.store-feat-name{font-size:17px;font-weight:600;color:var(--t1);}
+.store-feat-desc{font-size:13px;color:var(--t3);margin-top:3px;}
+.store-feat-meta{display:flex;align-items:center;justify-content:space-between;margin-top:10px;}
+.store-rating{font-size:12px;color:var(--yellow);}
+.store-size{font-size:12px;color:var(--t3);}
+.store-get-btn{
+  background:var(--glass2);border:1px solid var(--border2);
+  color:var(--s2);font-size:14px;font-weight:600;
+  padding:6px 18px;border-radius:14px;cursor:pointer;transition:all 0.15s;
+  font-family:'Syne',sans-serif;
+}
+.store-get-btn:active{transform:scale(0.95);}
+.store-get-btn.installed{color:var(--green);}
+
+/* ===== MAPS APP ===== */
+#maps-app{background:var(--bg0);}
+.map-container{
+  flex:1;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,#0a1a0a,#0a0a1a);
+  display:flex;align-items:center;justify-content:center;
+}
+.map-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(124,92,252,0.06) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(124,92,252,0.06) 1px,transparent 1px);
+  background-size:40px 40px;
+}
+.map-roads{position:absolute;inset:0;}
+.map-pin{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-100%);
+  font-size:36px;animation:pinBounce 1s ease;
+}
+@keyframes pinBounce{0%{transform:translate(-50%,-70%);}60%{transform:translate(-50%,-110%);}100%{transform:translate(-50%,-100%);}}
+.map-search{
+  position:absolute;top:16px;left:16px;right:16px;
+  background:rgba(13,13,26,0.95);backdrop-filter:var(--blur);
+  border:1px solid var(--border);border-radius:16px;
+  padding:12px 16px;display:flex;align-items:center;gap:10px;
+}
+.map-search input{flex:1;background:transparent;border:none;color:var(--t1);font-size:15px;outline:none;font-family:'Syne',sans-serif;}
+.map-controls{
+  position:absolute;right:16px;top:50%;transform:translateY(-50%);
+  display:flex;flex-direction:column;gap:8px;
+}
+.map-ctrl-btn{
+  width:40px;height:40px;border-radius:12px;
+  background:rgba(13,13,26,0.95);backdrop-filter:var(--blur);
+  border:1px solid var(--border);display:flex;align-items:center;justify-content:center;
+  font-size:18px;cursor:pointer;color:var(--t1);transition:all 0.15s;
+}
+.map-ctrl-btn:active{background:var(--glass2);}
+
+/* ===== MUSIC APP ===== */
+#music-app{background:var(--bg0);}
+.player-art{
+  width:220px;height:220px;border-radius:var(--r-xl);
+  margin:24px auto 20px;
+  background:linear-gradient(135deg,var(--s1),var(--s3));
+  display:flex;align-items:center;justify-content:center;font-size:80px;
+  box-shadow:0 20px 60px rgba(124,92,252,0.5);
+  animation:artFloat 4s ease-in-out infinite;
+}
+@keyframes artFloat{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-6px) scale(1.01);}}
+.player-song{text-align:center;padding:0 24px;}
+.player-title{font-size:22px;font-weight:700;color:var(--t1);margin-bottom:4px;}
+.player-artist{font-size:16px;color:var(--t3);}
+.player-progress{padding:24px;}
+.progress-bar-wrap{height:4px;background:rgba(255,255,255,0.15);border-radius:2px;position:relative;cursor:pointer;}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--s1),var(--s2));border-radius:2px;width:30%;transition:width 1s linear;}
+.progress-dot{
+  width:14px;height:14px;border-radius:50%;background:#fff;
+  position:absolute;top:50%;right:70%;transform:translate(50%,-50%);
+  box-shadow:0 2px 8px rgba(0,0,0,0.5);
+}
+.progress-times{display:flex;justify-content:space-between;margin-top:10px;font-size:12px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
+.player-controls{display:flex;align-items:center;justify-content:space-around;padding:0 20px;}
+.pc-btn{font-size:28px;color:var(--t2);cursor:pointer;padding:12px;transition:all 0.15s;}
+.pc-btn:active{color:var(--t1);transform:scale(0.9);}
+.pc-play{
+  width:70px;height:70px;border-radius:50%;
+  background:linear-gradient(135deg,var(--s1),var(--s2));
+  display:flex;align-items:center;justify-content:center;font-size:30px;
+  cursor:pointer;transition:transform 0.15s;border:none;color:#fff;
+}
+.pc-play:active{transform:scale(0.9);}
+.player-queue{padding:20px;}
+.queue-title{font-size:16px;font-weight:600;color:var(--t1);margin-bottom:12px;}
+.queue-item{
+  display:flex;align-items:center;gap:12px;
+  padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s;
+}
+.queue-item:active{opacity:0.8;}
+.qi-art{
+  width:44px;height:44px;border-radius:10px;
+  background:linear-gradient(135deg,var(--s1),var(--s3));
+  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;
+}
+.qi-info{flex:1;}
+.qi-name{font-size:14px;font-weight:500;color:var(--t1);}
+.qi-artist{font-size:12px;color:var(--t3);}
+.qi-dur{font-size:12px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
+
+/* ===== BROWSER APP ===== */
+#browser-app{background:var(--bg0);}
+.browser-bar{
+  display:flex;align-items:center;gap:10px;
+  padding:12px 16px;background:rgba(6,6,8,0.9);border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.url-bar{
+  flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:12px;
+  padding:9px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;
+  transition:background 0.15s;
+}
+.url-bar:active{background:var(--glass2);}
+.url-bar-ic{font-size:13px;color:var(--t3);}
+.url-bar-txt{font-size:14px;color:var(--t2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.browser-btn{width:36px;height:36px;border-radius:10px;background:var(--glass);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;color:var(--t1);}
+.browser-btn:active{background:var(--glass2);}
+.browser-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--bg1);}
+.browser-content::-webkit-scrollbar{display:none;}
+.browser-home{padding:32px 24px;}
+.browser-home h2{font-size:24px;font-weight:700;color:var(--t1);text-align:center;margin-bottom:24px;}
+.bh-search{
+  background:var(--glass);border:1px solid var(--border);border-radius:20px;
+  padding:14px 20px;display:flex;align-items:center;gap:12px;margin-bottom:28px;cursor:pointer;
+}
+.bh-search input{flex:1;background:transparent;border:none;color:var(--t1);font-size:16px;font-family:'Syne',sans-serif;outline:none;}
+.bh-search:active{background:var(--glass2);}
+.bookmarks-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.bookmark{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;}
+.bookmark:active{opacity:0.7;}
+.bm-ic{width:52px;height:52px;border-radius:14px;background:var(--glass);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;}
+.bm-name{font-size:11px;color:var(--t2);text-align:center;}
+
+/* ===== CLOCK APP ===== */
+#clock-app{background:var(--bg0);}
+.clock-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);flex-shrink:0;}
+.clock-tab{flex:1;padding:14px;text-align:center;font-size:14px;font-weight:600;color:var(--t3);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;}
+.clock-tab.active{color:var(--s1);border-bottom-color:var(--s1);}
+.clock-tab:active{background:var(--glass);}
+.clock-panel{display:none;flex:1;overflow-y:auto;}
+.clock-panel.active{display:flex;flex-direction:column;}
+.clock-panel::-webkit-scrollbar{display:none;}
+.world-clock-big{
+  padding:40px 24px;text-align:center;
+}
+.wc-time{font-size:80px;font-weight:100;color:#fff;letter-spacing:-3px;font-family:'JetBrains Mono',monospace;}
+.wc-loc{font-size:16px;color:var(--t2);margin-top:4px;}
+.wc-list{padding:0 16px 20px;display:flex;flex-direction:column;}
+.wc-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 0;border-bottom:1px solid var(--border);
+}
+.wc-left .wc-city{font-size:18px;font-weight:500;color:var(--t1);}
+.wc-left .wc-diff{font-size:13px;color:var(--t3);margin-top:2px;}
+.wc-right{font-size:32px;font-weight:200;color:#fff;font-family:'JetBrains Mono',monospace;}
+/* Stopwatch */
+.sw-display{text-align:center;padding:60px 0 40px;font-size:72px;font-weight:100;color:#fff;font-family:'JetBrains Mono',monospace;letter-spacing:-2px;}
+.sw-btns{display:flex;gap:20px;justify-content:center;margin-bottom:30px;}
+.sw-btn{
+  width:80px;height:80px;border-radius:50%;border:none;
+  font-size:16px;font-weight:600;cursor:pointer;font-family:'Syne',sans-serif;
+  transition:transform 0.15s;
+}
+.sw-btn:active{transform:scale(0.92);}
+.sw-btn.primary{background:var(--green);color:#000;}
+.sw-btn.secondary{background:var(--glass);color:var(--t1);}
+.sw-btn.danger{background:var(--red);color:#fff;}
+.sw-laps{padding:0 16px;}
+.sw-lap{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);font-family:'JetBrains Mono',monospace;}
+.sw-lap-num{font-size:14px;color:var(--t3);}
+.sw-lap-time{font-size:14px;color:var(--t1);}
+
+/* ===== FILE MANAGER ===== */
+#files{background:var(--bg0);}
+.files-header{
+  padding:24px 20px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.files-path{font-size:13px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
+.files-view-toggle{display:flex;gap:6px;}
+.fvt-btn{width:32px;height:32px;border-radius:8px;background:var(--glass);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;color:var(--t1);}
+.fvt-btn.active{background:var(--glass2);}
+.files-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 16px 20px;}
+.file-item{
+  background:var(--glass);border:1px solid var(--border);border-radius:var(--r-md);
+  padding:16px 12px;text-align:center;cursor:pointer;transition:all 0.15s;
+}
+.file-item:active{background:var(--glass2);transform:scale(0.96);}
+.fi-ic{font-size:32px;margin-bottom:8px;}
+.fi-name{font-size:12px;color:var(--t1);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.fi-size{font-size:10px;color:var(--t3);margin-top:3px;}
+
+/* ===== CONTROL CENTER ===== */
+.control-center{
+  position:absolute;top:-900px;left:0;right:0;bottom:0;
+  background:rgba(10,10,18,0.85);backdrop-filter:blur(40px);
+  z-index:500;transition:top 0.45s cubic-bezier(0.25,0.46,0.45,0.94);
+  padding:80px 20px 40px;overflow-y:auto;
+}
+.control-center.open{top:0;}
+.cc-title{font-size:13px;font-weight:600;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;}
+.cc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px;}
+.cc-item{
+  background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:18px;cursor:pointer;transition:all 0.2s;
+}
+.cc-item:active{background:rgba(255,255,255,0.15);}
+.cc-item.on .cc-ic{background:linear-gradient(135deg,var(--s1),var(--s2));}
+.cc-item.on .cc-name{color:var(--t1);}
+.cc-ic{
+  width:44px;height:44px;border-radius:12px;
+  background:rgba(255,255,255,0.1);
+  display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:8px;
+  transition:background 0.2s;
+}
+.cc-name{font-size:14px;font-weight:600;color:var(--t2);}
+.cc-state{font-size:12px;color:var(--t3);margin-top:2px;}
+.cc-slider-wrap{
+  background:rgba(255,255,255,0.08);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:18px;margin-bottom:12px;
+}
+.cc-slider-label{font-size:13px;color:var(--t2);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.cc-range{width:100%;height:6px;-webkit-appearance:none;appearance:none;border-radius:3px;background:rgba(255,255,255,0.15);outline:none;}
+.cc-range::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.4);}
+.cc-close{
+  width:48px;height:48px;border-radius:50%;background:var(--glass);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:20px;cursor:pointer;
+  margin:20px auto 0;color:var(--t1);
+}
+.cc-close:active{background:var(--glass2);}
+
+/* ===== NOTIFICATION CENTER ===== */
+.notif-center{
+  position:absolute;top:-900px;left:0;right:0;bottom:0;
+  background:rgba(10,10,18,0.9);backdrop-filter:blur(40px);
+  z-index:500;transition:top 0.45s cubic-bezier(0.25,0.46,0.45,0.94);
+  padding:80px 16px 40px;overflow-y:auto;
+}
+.notif-center.open{top:0;}
+.nc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+.nc-title{font-size:20px;font-weight:700;color:var(--t1);}
+.nc-clear{font-size:14px;color:var(--s2);cursor:pointer;}
+.nc-notif{
+  background:rgba(255,255,255,0.07);backdrop-filter:var(--blur);
+  border:1px solid var(--border);border-radius:var(--r-md);
+  padding:16px;margin-bottom:10px;
+  display:flex;gap:12px;align-items:flex-start;
+}
+.nc-notif-ic{
+  width:36px;height:36px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+}
+.nc-notif-body{flex:1;}
+.nc-notif-app{font-size:12px;color:var(--t3);margin-bottom:3px;}
+.nc-notif-title{font-size:15px;font-weight:600;color:var(--t1);}
+.nc-notif-text{font-size:13px;color:var(--t2);margin-top:2px;}
+.nc-notif-time{font-size:11px;color:var(--t3);margin-top:6px;}
+
+/* ===== TRANSITIONS ===== */
+.fade-in{animation:fadeIn 0.4s ease forwards;}
+@keyframes fadeIn{from{opacity:0;transform:scale(0.96);}to{opacity:1;transform:scale(1);}}
+.scale-in{animation:scaleIn 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards;}
+@keyframes scaleIn{from{opacity:0;transform:scale(0.7);}to{opacity:1;transform:scale(1);}}
+
+/* ===== CONTEXT MENU ===== */
+.ctx-menu{
+  position:absolute;background:rgba(30,30,45,0.95);backdrop-filter:blur(30px);
+  border:1px solid var(--border);border-radius:var(--r-md);padding:8px;
+  z-index:1000;min-width:180px;display:none;
+  box-shadow:0 20px 60px rgba(0,0,0,0.6);
+}
+.ctx-menu.show{display:block;animation:scaleIn 0.2s ease;}
+.ctx-item{
+  padding:11px 16px;border-radius:10px;cursor:pointer;
+  font-size:15px;color:var(--t1);transition:background 0.1s;display:flex;align-items:center;gap:10px;
+}
+.ctx-item:active{background:var(--glass2);}
+.ctx-item.danger{color:var(--red);}
+.ctx-divider{height:1px;background:var(--border);margin:4px 0;}
+
+/* ===== MISC ===== */
+.shimmer{background:linear-gradient(90deg,var(--bg2) 25%,var(--bg3) 50%,var(--bg2) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+.screen-overlay{position:absolute;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;}
+.screen-overlay.active{display:block;}
+.section-header{font-size:14px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:1px;padding:20px 0 10px;}
+.list-section{margin-bottom:24px;}
+.pill{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;}
+.pill.success{background:rgba(48,209,88,0.15);color:var(--green);}
+.pill.info{background:rgba(92,158,255,0.15);color:var(--s2);}
+.pill.warn{background:rgba(255,159,10,0.15);color:var(--orange);}
+</style>
+</head>
+<body>
+<div class="frame" id="frame">
+  <div class="dynamic-island" id="dynIsland">
+    <div class="di-cam"></div>
+    <div class="di-content" id="diContent"></div>
+  </div>
+
+  <!-- ===== BOOT SCREEN ===== -->
+  <div class="page active" id="boot" style="justify-content:center;align-items:center;background:#000;">
+    <div style="text-align:center;" id="bootContent">
+      <div class="boot-logo" id="bootLogo">Fluxora</div>
+      <div class="boot-sub" id="bootSub">OS 16.2</div>
+      <div class="boot-bar" id="bootBar"><div class="boot-fill" id="bootFill"></div></div>
+    </div>
+  </div>
+
+  <!-- ===== SETUP SCREEN ===== -->
+  <div class="page" id="setup" style="background:linear-gradient(160deg,#0f0a2a 0%,#0a0a14 100%);align-items:center;justify-content:center;padding:40px 32px;">
+    <div id="setupContent" style="width:100%;text-align:center;">
+      <div style="font-size:48px;margin-bottom:24px;">👋</div>
+      <h1 style="font-size:28px;font-weight:800;color:#fff;margin-bottom:12px;">Willkommen bei<br>FluxoraOS</h1>
+      <p style="font-size:16px;color:rgba(255,255,255,0.6);margin-bottom:40px;line-height:1.6;">Richte dein Gerät in wenigen Schritten ein.</p>
+      <div id="setupStep" style="width:100%;"></div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:24px;" id="setupDots"></div>
+    </div>
+  </div>
+
+  <!-- ===== LOCK SCREEN ===== -->
+  <div class="page" id="lock">
+    <div class="lock-bg" id="lockBg"></div>
+    <div class="lock-glow"></div>
+    <div class="lock-glow2"></div>
+    <div class="lock-content">
+      <div style="height:50px;display:flex;align-items:flex-end;justify-content:space-between;padding:0 28px 8px;position:relative;z-index:10;">
+        <span id="lockTime2" style="font-size:15px;font-weight:600;color:rgba(255,255,255,0.9);"></span>
+        <div style="display:flex;gap:6px;align-items:center;">
+          <span style="font-size:13px;color:rgba(255,255,255,0.9);">5G</span>
+          <div class="bat-body" style="border-color:rgba(255,255,255,0.7)"><div class="bat-fill" style="width:75%"></div></div>
+        </div>
+      </div>
+      <div class="lock-widgets">
+        <div class="lock-time">
+          <div class="time" id="lockClockBig">00:00</div>
+          <div class="date" id="lockDateBig">Sonntag, 15. März</div>
+        </div>
+        <div class="lock-notifs" id="lockNotifs">
+          <div class="lock-notif">
+            <div class="notif-icon" style="background:rgba(124,92,252,0.3);">📱</div>
+            <div class="notif-text">
+              <div class="notif-app">FluxoraOS</div>
+              <div class="notif-msg">Willkommen zurück!</div>
+            </div>
+          </div>
+          <div class="lock-notif">
+            <div class="notif-icon" style="background:rgba(92,158,255,0.3);">💬</div>
+            <div class="notif-text">
+              <div class="notif-app">Nachrichten</div>
+              <div class="notif-msg">2 neue Nachrichten</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="lock-bottom">
+        <div class="swipe-hint">
+          <span class="swipe-arrow">↑</span>
+          <span>Nach oben wischen</span>
+        </div>
+        <div class="lock-quick">
+          <div class="lock-qbtn" onclick="openApp('camera')">📷</div>
+          <div class="lock-qbtn" onclick="openApp('phone-app')">📞</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== HOME SCREEN ===== -->
+  <div class="page" id="home">
+    <div class="home-bg" id="homeBg"></div>
+    <canvas class="home-particles" id="particleCanvas"></canvas>
+    <div class="home-content">
+      <div class="home-sb">
+        <span class="sb-time" id="homeSbTime">00:00</span>
+        <div class="sb-icons">
+          <span style="font-size:12px;font-weight:600;color:#fff;">5G</span>
+          <div class="bat-body"><div class="bat-fill" style="width:75%"></div></div>
+        </div>
+      </div>
+      <div class="home-clock">
+        <div class="t" id="homeClockT">00:00</div>
+        <div class="d" id="homeClockD">Sonntag, 15. März</div>
+      </div>
+      <div class="home-search" onclick="openApp('browser-app')">
+        <span class="search-ic">🔍</span>
+        <span class="search-txt">Suchen oder Adresse eingeben</span>
+      </div>
+      <div class="apps-scroll">
+        <div class="apps-page" id="appsGrid"></div>
+      </div>
+    </div>
+    <div class="dock">
+      <div class="dock-inner" id="dockInner"></div>
+    </div>
+  </div>
+
+  <!-- ===== SETTINGS ===== -->
+  <div class="page app-shell" id="settings">
+    <div class="app-nav">
+      <div class="nav-back" onclick="goHome()">←</div>
+      <span class="nav-title">Einstellungen</span>
+    </div>
+    <div class="settings-hero">
+      <div class="settings-avatar" id="settingsAvatar">👤</div>
+      <div class="settings-user-info">
+        <h2 id="settingsUsername">Benutzer</h2>
+        <p>FluxoraOS 16.2 · Gerät-ID: FX-8829</p>
+      </div>
+    </div>
+    <div class="app-body" id="settingsBody"></div>
+  </div>
+
+  <!-- Settings Sub-Screens -->
+  <div class="page app-shell" id="settingsAppearance">
+    <div class="app-nav">
+      <div class="nav-back" onclick="showPage('settings')">←</div>
+      <span class="nav-title">Design & Anzeige</span>
+    </div>
+    <div class="app-body" id="appearanceBody"></div>
+  </div>
+
+  <div class="page app-shell" id="settingsDevice">
+    <div class="app-nav">
+      <div class="nav-back" onclick="showPage('settings')">←</div>
+      <span class="nav-title">Geräteinformationen</span>
+    </div>
+    <div class="app-body" id="deviceInfoBody"></div>
+  </div>
+
+  <!-- ===== CAMERA ===== -->
+  <div class="page" id="camera" style="background:#000;">
+    <div class="cam-viewfinder">
+      <video id="camVideo" autoplay playsinline muted></video>
+      <div class="cam-overlay">
+        <div class="cam-grid-lines"></div>
+        <div class="cam-corner tl"></div>
+        <div class="cam-corner tr"></div>
+        <div class="cam-corner bl"></div>
+        <div class="cam-corner br"></div>
+      </div>
+      <div class="cam-flash" id="camFlash"></div>
+      <div class="cam-no-perm" id="camNoPerm" style="display:none;">
+        <span style="font-size:48px;">📷</span>
+        <h3>Kamerazugriff benötigt</h3>
+        <p>Erlaube den Kamerazugriff, um Fotos aufzunehmen.</p>
+        <button class="btn-primary" onclick="requestCamera()">Zugriff erlauben</button>
+      </div>
+    </div>
+    <div class="cam-ui">
+      <div class="cam-top">
+        <button class="cam-top-btn" onclick="goHome()">✕</button>
+        <button class="cam-top-btn" id="camFlashBtn" onclick="toggleFlash()">⚡</button>
+        <button class="cam-top-btn" onclick="toggleZoom()">1x</button>
+      </div>
+      <div>
+        <div class="cam-modes">
+          <span class="cam-mode" onclick="setCamMode('video')">VIDEO</span>
+          <span class="cam-mode active" onclick="setCamMode('photo')">FOTO</span>
+          <span class="cam-mode" onclick="setCamMode('portrait')">PORTRÄT</span>
+        </div>
+        <div class="cam-bottom">
+          <div class="cam-thumb" id="camThumb" onclick="openApp('gallery')">
+            <img id="camLastPhoto" src="" alt="" style="display:none;">
+          </div>
+          <div class="cam-shutter" onclick="takePhoto()">
+            <div class="cam-shutter-inner"></div>
+          </div>
+          <button class="cam-flip" onclick="flipCamera()">🔄</button>
+        </div>
+      </div>
+    </div>
+    <canvas id="camCanvas" style="display:none;"></canvas>
+  </div>
+
+  <!-- ===== GALLERY ===== -->
+  <div class="page app-shell" id="gallery">
+    <div class="app-nav">
+      <div class="nav-back" onclick="goHome()">←</div>
+      <span class="nav-title">Galerie</span>
+      <span class="nav-action" id="galleryCount">0 Fotos</span>
+    </div>
+    <div class="app-body" style="padding:4px;" id="galleryBody">
+      <div class="gallery-empty" id="galleryEmpty">
+        <div class="gallery-empty-ic">🖼️</div>
+        <p>Noch keine Fotos. Mache dein erstes Foto mit der Kamera!</p>
+      </div>
+      <div class="gallery-grid" id="galleryGrid"></div>
+    </div>
+    <div class="photo-viewer" id="photoViewer">
+      <div class="pv-nav" style="background:rgba(0,0,0,0.7);">
+        <div class="nav-back" onclick="closePhotoViewer()" style="background:rgba(255,255,255,0.1);">←</div>
+        <span id="pvTitle" style="font-size:15px;color:var(--t2);">Foto</span>
+        <div></div>
+      </div>
+      <div class="pv-img"><img id="pvImg" src="" alt=""></div>
+      <div class="pv-controls">
+        <div class="pv-btn" onclick="sharePhoto()"><span>📤</span>Teilen</div>
+        <div class="pv-btn" onclick="editPhoto()"><span>✏️</span>Bearbeiten</div>
+        <div class="pv-btn" onclick="deletePhoto()" style="color:var(--red);"><span>🗑️</span>Löschen</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MESSAGES ===== -->
+  <div class="page app-shell" id="messages">
+    <div class="app-nav">
+      <div class="nav-back" onclick="goHome()">←</div>
+      <span class="nav-title">Nachrichten</span>
+      <span class="nav-action">✏️</span>
+    </div>
+    <div class="app-body" id="msgBody">
+      <div class="msg-list" id="msgList"></div>
+    </div>
+    <div class="chat-view" id="chatView">
+      <div class="chat-header">
+        <div class="nav-back" onclick="closeChatView()" style="background:var(--glass);border:1px solid var(--border);">←</div>
+        <div class="chat-av" id="chatAv" style="margin-left:8px;"></div>
+        <div>
+          <div class="chat-hname" id="chatName"></div>
+          <div style="font-size:12px;color:var(--green);">Online</div>
+        </div>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-input-wrap">
+        <textarea class="chat-input" id="chatInput" rows="1" placeholder="Nachricht..." onkeydown="handleChatKey(event)"></textarea>
+        <button class="chat-send" onclick="sendMessage()">↑</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PHONE ===== -->
+  <div class="page app-shell" id="phone-app">
+    <div class="app-nav">
+      <div class="nav-back" onclick="goHome()">←</div>
+      <span class="nav-title">Telefon</span>
+    </div>
+    <div class="app-body" id="phoneBody">
+      <div class="dialer-display" id="dialDisplay">Wählen</div>
+      <div class="dialer-sub" id="dialSub"></div>
+      <div class="dialpad" id="dialpad"></div>
+      <div class="dialpad-actions">
+        <div style="width:56px;"></div>
+        <button class="dial-call" onclick="makeCall()">📞</button>
+        <div class="dial-del" onclick="dialDelete()">⌫</div>
+      </div>
+      <div class="section-header" style="padding:20px 0 10px;">Zuletzt</div>
+      <div class="recents-list" id="recentsList"></div>
+    </div>
+  </div>
+
+  <!-- ===== NOTES ===== -->
+  <div class="page app-shell" id="notes">
+    <div class="app-nav">
+      <div class="nav-back" onclick="goHome()">←</div>
+      <span class="nav-title">Notizen</span>
+      <span class="nav-action" onclick="newNote()" style="font-size:20px;">+</span>
+    </div>
+    <div class="app-body">
+      <div class="notes-list" id="notesList"></div>
+    </div>
+    <div class="note-editor" id="noteEditor">
+      <div class="ne-nav">
+        <div class="nav-back" onclick="closeNoteEditor()">←</div>
+        <span style="font-size:15px;color:var(--t2);">Notiz</span>
+        <span class="nav-action" onclick="saveCurrentNote()">Fertig</span>
+      </div>
+      <input class="ne-title-input" id="noteTitleInput" placeholder="Titel" type="text">
+      <div class="ne-body"><textarea class="ne-textarea" id="noteBodyInput" placeholder="Notiz beginnen..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- ===== WEATHER ===== -->
+  <div class="page" id="weather-app">
+    <div class="weather-bg"></div>
+    <div style="position:relative;z-index:2;flex:1;display:flex;flex-direction:column;">
+      <div class="app-nav" style="background:transparent;border:none;">
+        <div class="nav-back" onclick="goHome()">←</div>
+        <span class="nav-title">Wetter</span>
+        <span class="nav-action">+</span>
+      </div>
+      <div class="weather-content" id="weatherContent"></div>
+    </div>
+  </div>
+
+  <!-- ===== CALCULATOR ===== -->
+  <div class="page" id="calculator" style="display:flex;flex-direction:column;background:#1c1c1e;">
+    <div class="app-nav" style="background:#1c1c1e;border-color:rgba(255,255,255,0.05);">
+      <div class="nav-back" onclick="goHome()">←</div>
+      <span class="nav-title">Rechner</span>
+    </div>
+    <div class="calc-display">
+      <div class="calc-expr" id="calcExpr"></div>
+      <div class="calc-result" id="calcResult">0</div>
+    </div>
+    <div class="calc-grid" id="calcGrid"></div>
+  </div>
+
+  <!-- ===== APP STORE ===== -->
+  <div class="page app-shell" id="store">
+    <div class="app-nav">
+      <div class="nav-back" onclick="goHome()">←</div>
+      <span class="nav-title">App Store</span>
+    </div>
+    <div class="app-body" id="storeBody"></div>
+  </div>
+
+  <!-- ===== MAPS ===== -->
+  <div class="page" id="maps-app" style="display:flex;flex-direction:column;">
+    <div class="app-nav" style="background:rgba(6,6,8,0.9);backdrop-filter:var(--blur);">
+      <div class="nav-back" onclick="goHome()">←</div>
+      <span class="nav-title">Karten</span>
+    </div>
+    <div class="map-container" id="mapContainer">
+      <div class="map-grid"></div>
+      <canvas id="mapCanvas" style="position:absolute;inset:0;width:100%;height:100%;"></canvas>
+      <div class="map-pin">📍</div>
+      <div class="map-search">
+        <span>🔍</span>
+        <input placeholder="Ort, Adresse suchen..." style="flex:1;background:transparent;border:none;color:var(--t1);font-size:15px;outline:none;font-family:'Syne',sans-serif;">
+      </div>
+      <div class="map-controls">
+        <div class="map-ctrl-btn" onclick="mapZoomIn()">+</div>
+        <div class="map-ctrl-btn" onclick="mapZoomOut()">−</div>
+        <div class="map-ctrl-btn">🧭</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MUSIC ===== -->
+  <div class="page app-shell" id="music-app">
+    <div class="app-nav">
+      <div class="nav-back" onclick="goHome()">←</div>
+      <span class="nav-title">Musik</span>
+    </div>
+    <div class="app-body" id="musicBody" style="padding:0;"></div>
+  </div>
+
+  <!-- ===== BROWSER ===== -->
+  <div class="page" id="browser-app" style="display:flex;flex-direction:column;">
+    <div class="app-nav" style="background:rgba(6,6,8,0.9);">
+      <div class="nav-back" onclick="goHome()">←</div>
+      <span class="nav-title" style="position:static;transform:none;font-size:14px;"></span>
+    </div>
+    <div class="browser-bar">
+      <div class="url-bar" id="urlBar" onclick="promptURL()">
+        <span class="url-bar-ic">🔒</span>
+        <span class="url-bar-txt" id="urlText">Suchen oder Adresse eingeben</span>
+      </div>
+      <div class="browser-btn" onclick="browserReload()">↻</div>
+    </div>
+    <div class="browser-content" id="browserContent">
+      <div class="browser-home">
+        <h2 style="font-family:'Syne',sans-serif;">Guten Abend</h2>
+        <div class="bh-search">
+          <span>🔍</span>
+          <input placeholder="Web durchsuchen..." id="browserSearchInput" onkeydown="browserSearch(event)">
+        </div>
+        <div class="bookmarks-grid" id="bookmarksGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CLOCK ===== -->
+  <div class="page" id="clock-app" style="display:flex;flex-direction:column;background:var(--bg0);">
+    <div class="app-nav">
+      <div class="nav-back" onclick="goHome()">←</div>
+      <span class="nav-title">Uhr</span>
+    </div>
+    <div class="clock-tabs">
+      <div class="clock-tab active" onclick="switchClockTab('world')">Welt</div>
+      <div class="clock-tab" onclick="switchClockTab('alarm')">Wecker</div>
+      <div class="clock-tab" onclick="switchClockTab('stopwatch')">Stoppuhr</div>
+      <div class="clock-tab" onclick="switchClockTab('timer')">Timer</div>
+    </div>
+    <div class="clock-panel active" id="clockWorld" style="overflow-y:auto;-webkit-overflow-scrolling:touch;"></div>
+    <div class="clock-panel" id="clockAlarm"></div>
+    <div class="clock-panel" id="clockStopwatch"></div>
+    <div class="clock-panel" id="clockTimer"></div>
+  </div>
+
+  <!-- ===== FILES ===== -->
+  <div class="page app-shell" id="files">
+    <div class="app-nav">
+      <div class="nav-back" onclick="goHome()">←</div>
+      <span class="nav-title">Dateien</span>
+    </div>
+    <div class="app-body" style="padding:0;" id="filesBody"></div>
+  </div>
+
+  <!-- ===== CONTROL CENTER ===== -->
+  <div class="control-center" id="controlCenter">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <span style="font-size:20px;font-weight:700;color:var(--t1);">Kontrollzentrum</span>
+      <div style="font-size:12px;font-family:'JetBrains Mono',monospace;" id="ccTimeDisplay"></div>
+    </div>
+    <div class="cc-grid" id="ccGrid"></div>
+    <div class="cc-slider-wrap">
+      <div class="cc-slider-label">☀️ Helligkeit</div>
+      <input type="range" class="cc-range" min="0" max="100" value="80" id="brightnessSlider" oninput="updateBrightness(this.value)">
+    </div>
+    <div class="cc-slider-wrap">
+      <div class="cc-slider-label">🔊 Lautstärke</div>
+      <input type="range" class="cc-range" min="0" max="100" value="60" id="volumeSlider">
+    </div>
+    <div class="cc-close" onclick="closeCC()">✕</div>
+  </div>
+
+  <!-- ===== NOTIFICATION CENTER ===== -->
+  <div class="notif-center" id="notifCenter">
+    <div class="nc-header">
+      <span class="nc-title">Benachrichtigungen</span>
+      <span class="nc-clear" onclick="clearNotifs()">Alle löschen</span>
+    </div>
+    <div id="ncList"></div>
+  </div>
+
+  <!-- ===== CONTEXT MENU ===== -->
+  <div class="ctx-menu" id="ctxMenu">
+    <div class="ctx-item" onclick="ctxAction('share')">📤 Teilen</div>
+    <div class="ctx-item" onclick="ctxAction('info')">ℹ️ Info</div>
+    <div class="ctx-divider"></div>
+    <div class="ctx-item danger" onclick="ctxAction('delete')">🗑️ Löschen</div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   FLUXORA OS 16.2 — Core System
+   ============================================================ */
+
+// ===== STATE =====
+const OS = {
+  currentPage: 'boot',
+  prevPage: null,
+  userName: 'Benutzer',
+  userAvatar: '👤',
+  wallpaper: 0,
+  accentColor: '#7c5cfc',
+  photos: [],
+  notes: JSON.parse(localStorage.getItem('fx_notes') || '[]'),
+  contacts: [
+    {id:1,name:'Anna Fischer',initials:'AF',color:'#5c9eff',msgs:[
+      {out:false,text:'Hey! Wie geht es dir?',time:'10:30'},
+      {out:true,text:'Super, danke! Dir auch?',time:'10:32'},
+      {out:false,text:'Prima! Was machst du heute Abend?',time:'10:33'},
+    ]},
+    {id:2,name:'Max Müller',initials:'MM',color:'#7c5cfc',msgs:[
+      {out:false,text:'Kannst du mir die Datei schicken?',time:'09:15'},
+      {out:true,text:'Ja, mache ich gleich.',time:'09:17'},
+    ]},
+    {id:3,name:'Lena Schmidt',initials:'LS',color:'#ff5c8d',msgs:[
+      {out:false,text:'Treffen wir uns morgen?',time:'Gestern'},
+      {out:true,text:'Ja, gerne! Um 14 Uhr?',time:'Gestern'},
+      {out:false,text:'Perfekt! Bis dann 😊',time:'Gestern'},
+    ]},
+    {id:4,name:'Tom Wagner',initials:'TW',color:'#5cffd4',msgs:[
+      {out:true,text:'Wie war das Meeting?',time:'Mo'},
+      {out:false,text:'Lang, aber produktiv.',time:'Mo'},
+    ]},
+  ],
+  currentChat: null,
+  dialString: '',
+  calcVal: '0',
+  calcExpr: '',
+  calcNewVal: true,
+  calcLastOp: null,
+  calcLastNum: null,
+  stopwatchRunning: false,
+  stopwatchTime: 0,
+  stopwatchInterval: null,
+  stopwatchLaps: [],
+  timerVal: 0,
+  timerRunning: false,
+  timerInterval: null,
+  musicPlaying: false,
+  musicProgress: 30,
+  musicInterval: null,
+  musicTrack: 0,
+  ccState: {wifi:true,bt:true,airplane:false,nfc:false,flashlight:false,rotation:true,dnd:false,hotspot:false},
+  brightness: 0.85,
+  cameraStream: null,
+  cameraFacing: 'environment',
+  mapZoom: 1,
+  notifications: [
+    {app:'Nachrichten',ic:'💬',title:'Anna Fischer',text:'Hey! Wie geht es dir?',time:'vor 5 Min',color:'#5c9eff'},
+    {app:'Kalender',ic:'📅',title:'Termin in 1 Stunde',text:'Meeting mit Team um 15:00',time:'vor 20 Min',color:'#ff9f0a'},
+    {app:'FluxoraOS',ic:'⚙️',title:'Update verfügbar',text:'FluxoraOS 16.3 kann installiert werden',time:'vor 1 Std',color:'#7c5cfc'},
+  ],
+  tracks:[
+    {title:'Neon Dreams',artist:'Synthwave Collective',dur:'3:42',art:'🎵'},
+    {title:'Midnight Drive',artist:'Lo-Fi Project',dur:'4:12',art:'🎶'},
+    {title:'Digital Rain',artist:'Cyberpunk Orchestra',dur:'5:01',art:'🎸'},
+    {title:'Purple Haze Remix',artist:'Electro Vision',dur:'3:28',art:'🎹'},
+    {title:'Aurora Borealis',artist:'Ambient Sounds',dur:'6:15',art:'🎼'},
+  ],
+  installedApps: {},
+};
+
+const WALLPAPERS = [
+  'linear-gradient(160deg,#0f0a2a 0%,#1a0a3a 40%,#0a1628 100%)',
+  'linear-gradient(160deg,#0a1628 0%,#0d2140 40%,#0a2830 100%)',
+  'linear-gradient(160deg,#1a0a0a 0%,#2a0a1a 50%,#0a0a2a 100%)',
+  'linear-gradient(160deg,#0a1a0a 0%,#0d2a0d 40%,#0a1a1a 100%)',
+  'linear-gradient(160deg,#1a1a0a 0%,#2a1a0a 40%,#1a0a0a 100%)',
+  'linear-gradient(160deg,#000 0%,#111 50%,#000 100%)',
+];
+
+// ===== APP DEFINITIONS =====
+const APPS = [
+  {id:'camera',name:'Kamera',ic:'📷',color:'linear-gradient(135deg,#1c1c1e,#2c2c2e)',dock:false},
+  {id:'messages',name:'Nachrichten',ic:'💬',color:'linear-gradient(135deg,#34c759,#28a745)',dock:true,badge:2},
+  {id:'phone-app',name:'Telefon',ic:'📞',color:'linear-gradient(135deg,#34c759,#30a14e)',dock:true},
+  {id:'gallery',name:'Galerie',ic:'🖼️',color:'linear-gradient(135deg,#ff9f0a,#ff6b0a)',dock:false},
+  {id:'settings',name:'Einstellungen',ic:'⚙️',color:'linear-gradient(135deg,#636366,#48484a)',dock:false},
+  {id:'notes',name:'Notizen',ic:'📝',color:'linear-gradient(135deg,#ffd60a,#ff9f0a)',dock:false},
+  {id:'weather-app',name:'Wetter',ic:'🌤️',color:'linear-gradient(135deg,#5c9eff,#007aff)',dock:false},
+  {id:'calculator',name:'Rechner',ic:'🔢',color:'linear-gradient(135deg,#636366,#1c1c1e)',dock:false},
+  {id:'store',name:'App Store',ic:'🏪',color:'linear-gradient(135deg,#5c9eff,#7c5cfc)',dock:false},
+  {id:'maps-app',name:'Karten',ic:'🗺️',color:'linear-gradient(135deg,#34c759,#007aff)',dock:false},
+  {id:'music-app',name:'Musik',ic:'🎵',color:'linear-gradient(135deg,#ff2d55,#ff5c8d)',dock:true},
+  {id:'browser-app',name:'Browser',ic:'🌐',color:'linear-gradient(135deg,#007aff,#5c9eff)',dock:true},
+  {id:'clock-app',name:'Uhr',ic:'⏰',color:'linear-gradient(135deg,#1c1c1e,#636366)',dock:false},
+  {id:'files',name:'Dateien',ic:'📁',color:'linear-gradient(135deg,#ff9f0a,#ffd60a)',dock:false},
+];
+
+// ===== BOOT SEQUENCE =====
+function startBoot(){
+  const logo=document.getElementById('bootLogo');
+  const sub=document.getElementById('bootSub');
+  const bar=document.getElementById('bootBar');
+  const fill=document.getElementById('bootFill');
+  setTimeout(()=>{logo.style.opacity='1';logo.style.transition='opacity 0.8s ease';},200);
+  setTimeout(()=>{sub.style.opacity='1';sub.style.transition='opacity 0.6s ease';},800);
+  setTimeout(()=>{bar.style.opacity='1';bar.style.transition='opacity 0.4s ease';},1200);
+  let progress=0;
+  const interval=setInterval(()=>{
+    progress+=Math.random()*15+5;
+    if(progress>=100){progress=100;clearInterval(interval);setTimeout(()=>startSetup(),600);}
+    fill.style.width=progress+'%';
+  },200);
+}
+
+// ===== SETUP =====
+let setupStepIdx=0;
+const SETUP_STEPS=[
+  {title:'Sprache',render:renderSetupLang},
+  {title:'Name',render:renderSetupName},
+  {title:'PIN',render:renderSetupPIN},
+  {title:'Aussehen',render:renderSetupAppearance},
+  {title:'Fertig',render:renderSetupDone},
+];
+function startSetup(){
+  showPage('setup');
+  setupStepIdx=0;
+  renderSetupStep();
+}
+function renderSetupDots(){
+  const c=document.getElementById('setupDots');
+  c.innerHTML=SETUP_STEPS.map((s,i)=>`<div style="width:${i===setupStepIdx?'24':'8'}px;height:8px;border-radius:4px;background:${i===setupStepIdx?'#7c5cfc':'rgba(255,255,255,0.2)'};transition:all 0.3s;"></div>`).join('');
+}
+function renderSetupStep(){
+  renderSetupDots();
+  const container=document.getElementById('setupStep');
+  container.style.animation='none';
+  setTimeout(()=>{container.style.animation='fadeIn 0.4s ease';SETUP_STEPS[setupStepIdx].render(container);},10);
+}
+function setupNext(){setupStepIdx++;if(setupStepIdx>=SETUP_STEPS.length){finishSetup();}else{renderSetupStep();}}
+function renderSetupLang(c){
+  c.innerHTML=`<div style="display:flex;flex-direction:column;gap:10px;">
+  ${['🇩🇪 Deutsch','🇬🇧 English','🇫🇷 Français','🇪🇸 Español'].map((l,i)=>`
+    <div onclick="this.parentElement.querySelectorAll('.lang-opt').forEach(x=>x.style.borderColor='rgba(255,255,255,0.1)');this.style.borderColor='#7c5cfc';" 
+      class="lang-opt" style="background:rgba(255,255,255,0.06);border:2px solid ${i===0?'#7c5cfc':'rgba(255,255,255,0.1)'};border-radius:14px;padding:16px;cursor:pointer;font-size:17px;color:#fff;text-align:left;">
+      ${l}</div>`).join('')}
+  <button class="btn-primary" style="margin-top:16px;" onclick="setupNext()">Weiter</button></div>`;
+}
+function renderSetupName(c){
+  c.innerHTML=`<div style="text-align:left;">
+  <p style="color:rgba(255,255,255,0.7);font-size:15px;margin-bottom:20px;">Wie soll dich FluxoraOS nennen?</p>
+  <input id="nameInput" type="text" placeholder="Dein Name" value="${OS.userName}" 
+    style="width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:16px;color:#fff;font-size:17px;font-family:'Syne',sans-serif;outline:none;margin-bottom:16px;">
+  <button class="btn-primary" onclick="OS.userName=document.getElementById('nameInput').value||'Benutzer';document.getElementById('settingsUsername').textContent=OS.userName;setupNext()">Weiter</button></div>`;
+}
+function renderSetupPIN(c){
+  let pin='';
+  c.innerHTML=`<div style="text-align:center;">
+  <p style="color:rgba(255,255,255,0.7);font-size:15px;margin-bottom:20px;">Lege eine 4-stellige PIN fest</p>
+  <div id="pinDots" style="display:flex;gap:16px;justify-content:center;margin-bottom:28px;">
+    ${[0,1,2,3].map(()=>`<div style="width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,0.2);border:2px solid rgba(255,255,255,0.3);"></div>`).join('')}
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:260px;margin:0 auto;">
+    ${[1,2,3,4,5,6,7,8,9,'','0','⌫'].map(k=>`
+      <div onclick="pinPress('${k}')" style="height:64px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;font-size:22px;color:#fff;font-weight:500;transition:all 0.15s;" ontouchstart="this.style.background='rgba(255,255,255,0.2)'" ontouchend="this.style.background='rgba(255,255,255,0.08)'">${k}</div>`).join('')}
+  </div></div>`;
+  window.pinPress=function(k){
+    if(k==='⌫'){pin=pin.slice(0,-1);}
+    else if(k!==''&&pin.length<4){pin+=k;}
+    const dots=document.getElementById('pinDots').children;
+    for(let i=0;i<4;i++)dots[i].style.background=i<pin.length?'#7c5cfc':'rgba(255,255,255,0.2)';
+    if(pin.length===4){setTimeout(()=>setupNext(),300);}
+  };
+}
+function renderSetupAppearance(c){
+  const colors=['#7c5cfc','#5c9eff','#ff5c8d','#5cffd4','#ff9f0a','#ff3b30'];
+  c.innerHTML=`<div>
+  <p style="color:rgba(255,255,255,0.7);font-size:15px;margin-bottom:20px;text-align:left;">Akzentfarbe wählen:</p>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:28px;">
+    ${colors.map(col=>`<div onclick="document.querySelectorAll('.setup-col').forEach(x=>x.style.transform='scale(1)');this.style.transform='scale(1.2)';OS.accentColor='${col}';document.documentElement.style.setProperty('--s1','${col}');" 
+      class="setup-col" style="width:44px;height:44px;border-radius:50%;background:${col};cursor:pointer;transition:transform 0.2s;border:3px solid rgba(255,255,255,0.2);"></div>`).join('')}
+  </div>
+  <button class="btn-primary" onclick="setupNext()">Fertig</button></div>`;
+}
+function renderSetupDone(c){
+  c.innerHTML=`<div style="text-align:center;">
+  <div style="font-size:64px;margin-bottom:16px;animation:scaleIn 0.5s ease;">✅</div>
+  <h2 style="font-size:24px;font-weight:700;color:#fff;margin-bottom:12px;">Alles bereit!</h2>
+  <p style="font-size:16px;color:rgba(255,255,255,0.6);margin-bottom:32px;">Willkommen bei FluxoraOS 16.2, ${OS.userName}!</p>
+  <button class="btn-primary" onclick="finishSetup()">Los geht's</button></div>`;
+}
+function finishSetup(){
+  showPage('lock');
+  initLock();
+  startClock();
+  initHome();
+}
+
+// ===== PAGE NAVIGATION =====
+function showPage(id,back=false){
+  const cur=document.getElementById(OS.currentPage);
+  const next=document.getElementById(id);
+  if(!next||OS.currentPage===id)return;
+  if(back){
+    cur.style.animation='slideBack 0.35s cubic-bezier(0.4,0,0.2,1) forwards';
+    next.style.display='flex';
+    next.style.animation='slideBackIn 0.35s cubic-bezier(0.4,0,0.2,1) forwards';
+    setTimeout(()=>{cur.style.display='none';cur.style.animation='';next.style.animation='';},350);
+  } else {
+    cur.classList.add('slide-out');
+    next.style.display='flex';
+    next.style.animation='slideIn 0.35s cubic-bezier(0.4,0,0.2,1) forwards';
+    setTimeout(()=>{cur.style.display='none';cur.classList.remove('slide-out');cur.style.transform='';next.style.animation='';},350);
+  }
+  OS.prevPage=OS.currentPage;
+  OS.currentPage=id;
+}
+
+function openApp(id){
+  closeCC();closeNotifCenter();
+  if(id==='camera'){initCamera();}
+  if(id==='settings'){renderSettings();}
+  if(id==='gallery'){renderGallery();}
+  if(id==='messages'){renderMessages();}
+  if(id==='phone-app'){renderPhone();}
+  if(id==='notes'){renderNotes();}
+  if(id==='weather-app'){renderWeather();}
+  if(id==='calculator'){renderCalculator();}
+  if(id==='store'){renderStore();}
+  if(id==='music-app'){renderMusic();}
+  if(id==='browser-app'){renderBrowser();}
+  if(id==='clock-app'){renderClock();}
+  if(id==='files'){renderFiles();}
+  showPage(id);
+}
+
+function goHome(){
+  // Stop camera if leaving
+  if(OS.cameraStream&&OS.currentPage==='camera'){stopCamera();}
+  showPage('home',true);
+  initHome();
+}
+
+// ===== LOCK SCREEN =====
+function initLock(){
+  updateLock();
+  let touchStartY=0;
+  const lock=document.getElementById('lock');
+  lock.addEventListener('touchstart',e=>{touchStartY=e.touches[0].clientY;},{passive:true});
+  lock.addEventListener('touchend',e=>{
+    const dy=touchStartY-e.changedTouches[0].clientY;
+    if(dy>60){unlockDevice();}
+  },{passive:true});
+  lock.addEventListener('mousedown',e=>{touchStartY=e.clientY;});
+  lock.addEventListener('mouseup',e=>{if(touchStartY-e.clientY>60){unlockDevice();}});
+}
+function unlockDevice(){
+  const lock=document.getElementById('lock');
+  lock.style.transition='transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94),opacity 0.4s ease';
+  lock.style.transform='translateY(-100%)';
+  lock.style.opacity='0';
+  setTimeout(()=>{showPage('home');lock.style.transform='';lock.style.opacity='';lock.style.transition='';initHome();},450);
+}
+function updateLock(){
+  const now=new Date();
+  const t=now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+  const d=now.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
+  const el=document.getElementById('lockClockBig');
+  const de=document.getElementById('lockDateBig');
+  const l2=document.getElementById('lockTime2');
+  if(el)el.textContent=t;if(de)de.textContent=d;if(l2)l2.textContent=t;
+}
+
+// ===== CLOCK =====
+function startClock(){
+  setInterval(()=>{
+    const now=new Date();
+    const t=now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+    const d=now.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
+    const els=['lockClockBig','homeClockT','homeSbTime','lockTime2'];
+    els.forEach(id=>{const e=document.getElementById(id);if(e){if(id==='homeSbTime')e.textContent=now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});else if(id.includes('Clock'))e.textContent=t;else e.textContent=t;}});
+    const dd=document.getElementById('homeClockD');
+    if(dd)dd.textContent=d;
+    const cct=document.getElementById('ccTimeDisplay');
+    if(cct)cct.textContent=t;
+  },1000);
+}
+
+// ===== HOME SCREEN =====
+function initHome(){
+  renderAppsGrid();
+  renderDock();
+  renderParticles();
+  // Apply wallpaper
+  document.getElementById('homeBg').style.background=WALLPAPERS[OS.wallpaper];
+  document.getElementById('lockBg').style.background=WALLPAPERS[OS.wallpaper];
+}
+function renderAppsGrid(){
+  const grid=document.getElementById('appsGrid');
+  grid.innerHTML=APPS.map((app,i)=>`
+    <div class="app-item" onclick="openApp('${app.id}')" oncontextmenu="showCtxMenu(event,'${app.id}')" 
+      style="animation-delay:${i*0.04}s">
+      ${app.badge?`<span class="badge">${app.badge}</span>`:''}
+      <div class="app-ic" style="background:${app.color};">${app.ic}</div>
+      <span class="app-lbl">${app.name}</span>
+    </div>`).join('');
+}
+function renderDock(){
+  const dock=document.getElementById('dockInner');
+  const dockApps=APPS.filter(a=>a.dock);
+  dock.innerHTML=dockApps.map(app=>`
+    <div class="dock-app" onclick="openApp('${app.id}')">
+      <div class="app-ic" style="background:${app.color};">${app.ic}</div>
+    </div>`).join('');
+}
+
+// ===== PARTICLES =====
+function renderParticles(){
+  const canvas=document.getElementById('particleCanvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  canvas.width=canvas.offsetWidth;
+  canvas.height=canvas.offsetHeight;
+  const particles=Array.from({length:30},()=>({
+    x:Math.random()*canvas.width,y:Math.random()*canvas.height,
+    vx:(Math.random()-0.5)*0.3,vy:(Math.random()-0.5)*0.3,
+    r:Math.random()*1.5+0.5,a:Math.random()
+  }));
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=canvas.width;if(p.x>canvas.width)p.x=0;
+      if(p.y<0)p.y=canvas.height;if(p.y>canvas.height)p.y=0;
+      ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(124,92,252,${p.a*0.3})`;ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+}
+
+// ===== MAP CANVAS =====
+function renderMapCanvas(){
+  const canvas=document.getElementById('mapCanvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  const w=canvas.width=canvas.offsetWidth;
+  const h=canvas.height=canvas.offsetHeight;
+  // Streets
+  ctx.strokeStyle='rgba(124,92,252,0.15)';ctx.lineWidth=8;
+  ctx.beginPath();ctx.moveTo(0,h*0.4);ctx.lineTo(w,h*0.4);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,h*0.65);ctx.lineTo(w,h*0.65);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(w*0.35,0);ctx.lineTo(w*0.35,h);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(w*0.65,0);ctx.lineTo(w*0.65,h);ctx.stroke();
+  ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(0,h*0.25);ctx.lineTo(w,h*0.25);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(w*0.2,0);ctx.lineTo(w*0.2,h);ctx.stroke();
+  // Buildings
+  ctx.fillStyle='rgba(92,158,255,0.08)';
+  [[0.1,0.3,0.12,0.08],[0.42,0.1,0.15,0.12],[0.7,0.5,0.13,0.1],[0.5,0.7,0.1,0.08]].forEach(([x,y,ww,hh])=>{
+    ctx.fillRect(x*w,y*h,ww*w,hh*h);
+  });
+}
+function mapZoomIn(){OS.mapZoom=Math.min(3,OS.mapZoom+0.2);document.getElementById('mapContainer').style.transform=`scale(${OS.mapZoom})`;document.getElementById('mapContainer').style.transformOrigin='center';}
+function mapZoomOut(){OS.mapZoom=Math.max(0.5,OS.mapZoom-0.2);document.getElementById('mapContainer').style.transform=`scale(${OS.mapZoom})`;document.getElementById('mapContainer').style.transformOrigin='center';}
+
+// ===== SETTINGS =====
+function renderSettings(){
+  document.getElementById('settingsUsername').textContent=OS.userName;
+  document.getElementById('settingsAvatar').textContent=OS.userAvatar;
+  const body=document.getElementById('settingsBody');
+  body.innerHTML=`
+  <div class="s-section">
+    <div class="s-label">Verbindungen</div>
+    <div class="s-group">
+      ${sRow('📶','WLAN','Connected: FluxNet 5G','','wifi','>')}
+      ${sRow('🔵','Bluetooth','Ein','','bt','>')}
+      ${sRow('📡','Mobilfunk','5G · Exzellent','','cell','>')}
+      ${sRow('✈️','Flugmodus','','toggle','airplane','')}
+    </div>
+  </div>
+  <div class="s-section">
+    <div class="s-label">Anzeige & Ton</div>
+    <div class="s-group">
+      ${sRow('🎨','Design & Anzeige','Hell, Dunkel, Akzentfarbe','','appearance','>')}
+      ${sRow('🔔','Töne & Haptik','','','sound','>')}
+      ${sRow('⏰','Nie Ausschalten','','toggle','nosleep','')}
+    </div>
+  </div>
+  <div class="s-section">
+    <div class="s-label">Allgemein</div>
+    <div class="s-group">
+      ${sRow('⚙️','Info & Diagnose','','','info','>')}
+      ${sRow('🔒','Datenschutz','','','priv','>')}
+      ${sRow('♿','Bedienungshilfen','','','access','>')}
+      ${sRow('💾','Speicher','Verwalte deinen Speicher','','storage','>')}
+    </div>
+  </div>
+  <div class="s-section">
+    <div class="s-label">Gerät</div>
+    <div class="s-group">
+      ${sRow('📱','Geräteinformationen','FluxoraOS 16.2','','device','>')}
+      ${sRow('🔄','Software-Update','16.2.1 verfügbar','','update','>')}
+      ${sRow('⚡','Akku & Leistung','','','battery','>')}
+    </div>
+  </div>
+  <div class="s-section">
+    <div class="s-label">Konto</div>
+    <div class="s-group">
+      ${sRow('👤','Mein Profil',OS.userName,'','profile','>')}
+      ${sRow('🗓️','iFluxora & iCloud','','','cloud','>')}
+    </div>
+  </div>
+  <div class="s-section">
+    <div class="s-label">Zurücksetzen</div>
+    <div class="s-group">
+      <div class="s-row" onclick="resetOS()" style="justify-content:center;">
+        <span style="color:var(--red);font-size:16px;font-weight:600;">Alle Inhalte & Einstellungen löschen</span>
+      </div>
+    </div>
+  </div>`;
+  // bind toggles
+  body.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+    cb.checked=OS.ccState[cb.dataset.key]||false;
+    cb.onchange=()=>{OS.ccState[cb.dataset.key]=cb.checked;};
+  });
+  body.querySelectorAll('.s-row[data-nav]').forEach(row=>{
+    row.onclick=()=>navigateSettings(row.dataset.nav);
+  });
+}
+function sRow(ic,name,desc,type,key,right){
+  const rightEl=type==='toggle'
+    ?`<label class="toggle-wrap"><input type="checkbox" data-key="${key}"><div class="toggle-slider"></div></label>`
+    :right?`<span class="s-arrow">${right}</span>`:'';
+  return `<div class="s-row" data-nav="${key}">
+    <div class="s-ico" style="background:linear-gradient(135deg,${randomColor(key)},${randomColor(key+'2')})">${ic}</div>
+    <div class="s-main">
+      <div class="s-name">${name}</div>
+      ${desc?`<div class="s-desc">${desc}</div>`:''}
+    </div>
+    <div class="s-right">${rightEl}</div>
+  </div>`;
+}
+function randomColor(seed){
+  const colors=['#5c9eff','#7c5cfc','#ff5c8d','#5cffd4','#ff9f0a','#ff3b30','#34c759','#636366'];
+  let h=0;for(let i=0;i<seed.length;i++)h=(h*31+seed.charCodeAt(i))%colors.length;
+  return colors[Math.abs(h)];
+}
+function navigateSettings(nav){
+  if(nav==='appearance'){renderAppearanceSettings();showPage('settingsAppearance');}
+  else if(nav==='device'){renderDeviceInfo();showPage('settingsDevice');}
+}
+function renderAppearanceSettings(){
+  const body=document.getElementById('appearanceBody');
+  const colors=['#7c5cfc','#5c9eff','#ff5c8d','#5cffd4','#ff9f0a','#ff3b30','#ffffff'];
+  body.innerHTML=`
+  <div class="s-section">
+    <div class="s-label">Darstellung</div>
+    <div class="s-group">
+      <div class="s-row" style="cursor:default;">
+        <div style="display:flex;gap:16px;width:100%;">
+          ${['Dunkel','Hell','Auto'].map((m,i)=>`<div onclick="setMode('${m}')" 
+            style="flex:1;padding:16px 8px;text-align:center;border-radius:12px;background:${i===0?'linear-gradient(135deg,var(--s1),var(--s2))':'var(--bg2)'};font-size:14px;font-weight:600;color:#fff;cursor:pointer;border:2px solid ${i===0?'transparent':'var(--border)'};">${m}</div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="s-section">
+    <div class="s-label">Akzentfarbe</div>
+    <div class="s-group">
+      <div class="s-row" style="cursor:default;flex-direction:column;align-items:flex-start;">
+        <div class="color-picker-row">
+          ${colors.map(c=>`<div class="color-swatch${OS.accentColor===c?' active':''}" style="background:${c};" onclick="setAccent('${c}')"></div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="s-section">
+    <div class="s-label">Hintergrundbild</div>
+    <div class="s-group">
+      <div class="s-row" style="cursor:default;flex-direction:column;align-items:flex-start;padding:16px;">
+        <div class="wallpaper-grid">
+          ${WALLPAPERS.map((wp,i)=>`
+            <div class="wp-thumb${OS.wallpaper===i?' active':''}" style="background:${wp};" onclick="setWallpaper(${i})">
+              ${OS.wallpaper===i?'<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:20px;">✓</div>':''}
+            </div>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="s-section">
+    <div class="s-label">Schriftgröße</div>
+    <div class="s-group">
+      <div class="s-row" style="cursor:default;flex-direction:column;align-items:flex-start;">
+        <div style="width:100%;display:flex;align-items:center;gap:12px;padding:4px 0;">
+          <span style="font-size:12px;color:var(--t3);">A</span>
+          <input type="range" class="cc-range" style="flex:1;" min="80" max="120" value="100" oninput="setFontSize(this.value)">
+          <span style="font-size:18px;color:var(--t3);">A</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="s-section">
+    <div class="s-label">Animationseffekte</div>
+    <div class="s-group">
+      ${sRow('✨','Übergangsanimationen','Flüssige Übergänge','toggle','animations','')}
+      ${sRow('💫','Transparenzeffekte','Glasmorphismus','toggle','transparency','')}
+    </div>
+  </div>`;
+}
+function renderDeviceInfo(){
+  const body=document.getElementById('deviceInfoBody');
+  body.innerHTML=`
+  <div class="device-info-card">
+    <div class="di-logo">FluxoraOS</div>
+    <div class="di-model">16.2 · Modell FX-2024</div>
+    <div class="di-grid">
+      ${[['Version','16.2.0'],['Build','FX-20240315'],['Gerät','FluxPhone 15 Pro'],['Chip','Fluxion A17'],['RAM','8 GB'],['Speicher','256 GB'],['Akku','4500 mAh'],['Display','6.1" OLED']].map(([l,v])=>`
+        <div class="di-cell"><div class="di-cell-label">${l}</div><div class="di-cell-val">${v}</div></div>`).join('')}
+    </div>
+  </div>
+  <div class="s-section">
+    <div class="s-label">Speicher</div>
+    <div class="s-group">
+      <div class="s-row" style="cursor:default;flex-direction:column;align-items:flex-start;gap:12px;">
+        <div style="display:flex;justify-content:space-between;width:100%;"><span style="color:var(--t1);">Gesamt</span><span class="s-badge-val">256 GB</span></div>
+        <div style="height:12px;background:var(--bg2);border-radius:6px;width:100%;overflow:hidden;">
+          <div style="height:100%;width:38%;background:linear-gradient(90deg,var(--s1),var(--s2));border-radius:6px;"></div>
+        </div>
+        <div style="display:flex;gap:16px;font-size:13px;">
+          <span>📱 Apps: <b style="color:var(--t1);">42 GB</b></span>
+          <span>🖼️ Medien: <b style="color:var(--t1);">38 GB</b></span>
+          <span>💾 Frei: <b style="color:var(--green);">176 GB</b></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="s-section">
+    <div class="s-label">Netzwerk</div>
+    <div class="s-group">
+      ${[['IP-Adresse','192.168.1.42'],['MAC-Adresse','A4:C3:F0:12:8B:2E'],['WLAN','FluxNet 5G'],['Bluetooth','Fluxora BT 5.3']].map(([l,v])=>`
+        <div class="s-row" style="cursor:default;">
+          <div class="s-main"><div class="s-name">${l}</div></div>
+          <div class="s-badge-val">${v}</div>
+        </div>`).join('')}
+    </div>
+  </div>
+  <div class="s-section">
+    <div class="s-label">Diagnose</div>
+    <div class="s-group">
+      <div class="s-row" style="cursor:default;flex-direction:column;align-items:flex-start;gap:8px;">
+        <div style="display:flex;justify-content:space-between;width:100%;"><span style="color:var(--t1);">CPU-Auslastung</span><span class="pill info">12%</span></div>
+        <div style="display:flex;justify-content:space-between;width:100%;"><span style="color:var(--t1);">RAM-Nutzung</span><span class="pill warn">3.2 / 8 GB</span></div>
+        <div style="display:flex;justify-content:space-between;width:100%;"><span style="color:var(--t1);">Akkustatus</span><span class="pill success">Gut · 97%</span></div>
+        <div style="display:flex;justify-content:space-between;width:100%;"><span style="color:var(--t1);">Temperatur</span><span class="pill info">28°C</span></div>
+      </div>
+    </div>
+  </div>`;
+}
+function setAccent(color){
+  OS.accentColor=color;
+  document.documentElement.style.setProperty('--s1',color);
+  renderAppearanceSettings();
+}
+function setWallpaper(i){
+  OS.wallpaper=i;
+  document.getElementById('homeBg').style.background=WALLPAPERS[i];
+  document.getElementById('lockBg').style.background=WALLPAPERS[i];
+  renderAppearanceSettings();
+}
+function setFontSize(v){document.documentElement.style.fontSize=(v/100*16)+'px';}
+function resetOS(){if(confirm('Wirklich zurücksetzen?')){localStorage.clear();location.reload();}}
+
+// ===== CAMERA =====
+function initCamera(){
+  const video=document.getElementById('camVideo');
+  const noPerm=document.getElementById('camNoPerm');
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){noPerm.style.display='flex';return;}
+  noPerm.style.display='none';
+  startCameraStream();
+}
+function startCameraStream(){
+  if(OS.cameraStream){OS.cameraStream.getTracks().forEach(t=>t.stop());}
+  const video=document.getElementById('camVideo');
+  navigator.mediaDevices.getUserMedia({video:{facingMode:OS.cameraFacing},audio:false})
+    .then(stream=>{OS.cameraStream=stream;video.srcObject=stream;video.play();})
+    .catch(()=>{document.getElementById('camNoPerm').style.display='flex';});
+}
+function requestCamera(){startCameraStream();}
+function stopCamera(){if(OS.cameraStream){OS.cameraStream.getTracks().forEach(t=>t.stop());OS.cameraStream=null;}}
+function flipCamera(){
+  OS.cameraFacing=OS.cameraFacing==='environment'?'user':'environment';
+  startCameraStream();
+}
+function toggleFlash(){showDIMsg('⚡','Blitz nicht verfügbar',500);}
+function toggleZoom(){}
+function setCamMode(m){document.querySelectorAll('.cam-mode').forEach(x=>x.classList.remove('active'));event.target.classList.add('active');}
+function takePhoto(){
+  const video=document.getElementById('camVideo');
+  const canvas=document.getElementById('camCanvas');
+  const flash=document.getElementById('camFlash');
+  if(!video.srcObject){showDIMsg('📷','Kein Kamerazugriff',1500);return;}
+  canvas.width=video.videoWidth||640;canvas.height=video.videoHeight||480;
+  const ctx=canvas.getContext('2d');
+  ctx.drawImage(video,0,0);
+  const dataURL=canvas.toDataURL('image/jpeg',0.85);
+  flash.classList.add('shoot');
+  setTimeout(()=>flash.classList.remove('shoot'),150);
+  OS.photos.unshift({url:dataURL,date:new Date().toLocaleDateString('de-DE'),time:new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})});
+  // Update thumb
+  const img=document.getElementById('camLastPhoto');
+  img.src=dataURL;img.style.display='block';
+  showDIMsg('📷','Foto gespeichert',1200);
+  // vibrate
+  if(navigator.vibrate)navigator.vibrate(50);
+}
+
+// ===== GALLERY =====
+function renderGallery(){
+  const grid=document.getElementById('galleryGrid');
+  const empty=document.getElementById('galleryEmpty');
+  const count=document.getElementById('galleryCount');
+  count.textContent=OS.photos.length+' Fotos';
+  if(OS.photos.length===0){empty.style.display='flex';grid.style.display='none';return;}
+  empty.style.display='none';grid.style.display='grid';
+  grid.innerHTML=OS.photos.map((p,i)=>`
+    <div class="gallery-cell" onclick="openPhoto(${i})">
+      <img src="${p.url}" alt="Foto ${i+1}" loading="lazy">
+    </div>`).join('');
+}
+let currentPhotoIdx=0;
+function openPhoto(i){
+  currentPhotoIdx=i;
+  const viewer=document.getElementById('photoViewer');
+  const img=document.getElementById('pvImg');
+  const title=document.getElementById('pvTitle');
+  img.src=OS.photos[i].url;
+  title.textContent=`${OS.photos[i].date} · ${OS.photos[i].time}`;
+  viewer.classList.add('active');
+}
+function closePhotoViewer(){document.getElementById('photoViewer').classList.remove('active');}
+function deletePhoto(){
+  OS.photos.splice(currentPhotoIdx,1);
+  closePhotoViewer();renderGallery();
+}
+function sharePhoto(){showDIMsg('📤','Teilen nicht verfügbar',1200);}
+function editPhoto(){showDIMsg('✏️','Bearbeitung in Entwicklung',1200);}
+
+// ===== MESSAGES =====
+function renderMessages(){
+  const list=document.getElementById('msgList');
+  list.innerHTML=OS.contacts.map(c=>{
+    const last=c.msgs[c.msgs.length-1];
+    return `<div class="msg-row" onclick="openChat(${c.id})">
+      <div class="msg-avatar" style="background:linear-gradient(135deg,${c.color},${c.color}88)">${c.initials}</div>
+      <div class="msg-info">
+        <div class="msg-top"><span class="msg-name">${c.name}</span><span class="msg-time">${last.time}</span></div>
+        <div class="msg-preview">${last.out?'Du: ':''}${last.text}</div>
+      </div>
+      ${!last.out?'<div class="msg-unread"></div>':''}
+    </div>`;}).join('');
+}
+function openChat(id){
+  const contact=OS.contacts.find(c=>c.id===id);
+  if(!contact)return;
+  OS.currentChat=id;
+  const view=document.getElementById('chatView');
+  const av=document.getElementById('chatAv');
+  const name=document.getElementById('chatName');
+  av.textContent=contact.initials;
+  av.style.background=`linear-gradient(135deg,${contact.color},${contact.color}88)`;
+  name.textContent=contact.name;
+  renderChatMessages(contact);
+  view.classList.add('active');
+}
+function renderChatMessages(contact){
+  const msgs=document.getElementById('chatMessages');
+  msgs.innerHTML=contact.msgs.map(m=>`
+    <div style="display:flex;flex-direction:column;align-items:${m.out?'flex-end':'flex-start'};">
+      <div class="bubble ${m.out?'out':'in'}">${m.text}
+        <div class="bubble-time">${m.time}</div>
+      </div>
+    </div>`).join('');
+  msgs.scrollTop=msgs.scrollHeight;
+}
+function closeChatView(){document.getElementById('chatView').classList.remove('active');}
+function sendMessage(){
+  const input=document.getElementById('chatInput');
+  const text=input.value.trim();
+  if(!text||!OS.currentChat)return;
+  const contact=OS.contacts.find(c=>c.id===OS.currentChat);
+  const t=new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+  contact.msgs.push({out:true,text,time:t});
+  input.value='';
+  renderChatMessages(contact);
+  // Auto reply
+  const replies=['OK 👍','Verstanden!','Interessant...','Ich melde mich!','Klingt gut!','👌'];
+  setTimeout(()=>{
+    contact.msgs.push({out:false,text:replies[Math.floor(Math.random()*replies.length)],time:new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})});
+    renderChatMessages(contact);
+  },1200+Math.random()*2000);
+}
+function handleChatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
+
+// ===== PHONE =====
+const DIAL_KEYS=[
+  {n:'1',l:''},{n:'2',l:'ABC'},{n:'3',l:'DEF'},
+  {n:'4',l:'GHI'},{n:'5',l:'JKL'},{n:'6',l:'MNO'},
+  {n:'7',l:'PQRS'},{n:'8',l:'TUV'},{n:'9',l:'WXYZ'},
+  {n:'*',l:''},{n:'0',l:'+'},{n:'#',l:''},
+];
+function renderPhone(){
+  document.getElementById('dialDisplay').textContent=OS.dialString||'Wählen';
+  const pad=document.getElementById('dialpad');
+  pad.innerHTML=DIAL_KEYS.map(k=>`
+    <div class="dial-key" onclick="dialPress('${k.n}')">
+      <div class="dk-num">${k.n}</div>
+      ${k.l?`<div class="dk-let">${k.l}</div>`:''}
+    </div>`).join('');
+  const recents=document.getElementById('recentsList');
+  recents.innerHTML=OS.contacts.slice(0,3).map(c=>`
+    <div class="recent-item" onclick="callContact('${c.name}')">
+      <div class="recent-av" style="background:linear-gradient(135deg,${c.color},${c.color}88)">${c.initials}</div>
+      <div class="recent-info">
+        <div class="recent-name">${c.name}</div>
+        <div class="recent-type" style="color:var(--green);">Eingehend · 2 Min</div>
+      </div>
+      <div class="recent-time">heute</div>
+    </div>`).join('');
+}
+function dialPress(n){
+  OS.dialString+=n;
+  document.getElementById('dialDisplay').textContent=formatPhoneNumber(OS.dialString);
+  if(navigator.vibrate)navigator.vibrate(10);
+}
+function dialDelete(){
+  OS.dialString=OS.dialString.slice(0,-1);
+  document.getElementById('dialDisplay').textContent=OS.dialString?formatPhoneNumber(OS.dialString):'Wählen';
+}
+function formatPhoneNumber(n){return n;}
+function makeCall(){
+  if(OS.dialString){showDIMsg('📞',`Anruf: ${OS.dialString}`,3000);OS.dialString='';document.getElementById('dialDisplay').textContent='Wählen';}
+}
+function callContact(name){showDIMsg('📞',`Anruf: ${name}`,3000);}
+
+// ===== NOTES =====
+function renderNotes(){
+  const list=document.getElementById('notesList');
+  if(OS.notes.length===0){list.innerHTML=`<div style="text-align:center;padding:60px 20px;color:var(--t3);">Noch keine Notizen. Tippe auf + um eine neue anzulegen.</div>`;return;}
+  list.innerHTML=OS.notes.map((n,i)=>`
+    <div class="note-card" onclick="openNote(${i})">
+      <div class="note-title">${n.title||'Ohne Titel'}</div>
+      <div class="note-preview">${n.body||'Keine Inhalte'}</div>
+      <div class="note-date">${n.date}</div>
+    </div>`).join('');
+}
+let editingNoteIdx=-1;
+function newNote(){editingNoteIdx=-1;document.getElementById('noteTitleInput').value='';document.getElementById('noteBodyInput').value='';document.getElementById('noteEditor').classList.add('active');}
+function openNote(i){
+  editingNoteIdx=i;
+  document.getElementById('noteTitleInput').value=OS.notes[i].title;
+  document.getElementById('noteBodyInput').value=OS.notes[i].body;
+  document.getElementById('noteEditor').classList.add('active');
+}
+function closeNoteEditor(){document.getElementById('noteEditor').classList.remove('active');renderNotes();}
+function saveCurrentNote(){
+  const title=document.getElementById('noteTitleInput').value;
+  const body=document.getElementById('noteBodyInput').value;
+  const date=new Date().toLocaleDateString('de-DE',{day:'numeric',month:'short',year:'numeric'});
+  if(editingNoteIdx>=0){OS.notes[editingNoteIdx]={title,body,date};}
+  else{OS.notes.unshift({title,body,date});}
+  localStorage.setItem('fx_notes',JSON.stringify(OS.notes));
+  closeNoteEditor();
+}
+
+// ===== WEATHER =====
+function renderWeather(){
+  const c=document.getElementById('weatherContent');
+  const conditions=[
+    {icon:'⛅',desc:'Teilweise bewölkt',temp:14,high:16,low:8},
+    {icon:'🌤️',desc:'Überwiegend sonnig',temp:18,high:21,low:12},
+    {icon:'🌧️',desc:'Regen',temp:9,high:11,low:6},
+    {icon:'☀️',desc:'Sonnig',temp:22,high:24,low:15},
+  ];
+  const w=conditions[Math.floor(Math.random()*conditions.length)];
+  const hourly=[{t:'Jetzt',i:w.icon,tmp:w.temp},{t:'14h',i:'⛅',tmp:w.temp-1},{t:'15h',i:'🌤️',tmp:w.temp+1},{t:'16h',i:'☁️',tmp:w.temp-2},{t:'17h',i:'🌧️',tmp:w.temp-3},{t:'18h',i:'🌦️',tmp:w.temp-1},{t:'19h',i:'⛅',tmp:w.temp},{t:'20h',i:'🌙',tmp:w.temp-4}];
+  const forecast=[
+    {d:'Montag',i:'☀️',lo:10,hi:18},{d:'Dienstag',i:'⛅',lo:8,hi:15},{d:'Mittwoch',i:'🌧️',lo:6,hi:12},
+    {d:'Donnerstag',i:'🌤️',lo:9,hi:16},{d:'Freitag',i:'☀️',lo:12,hi:20},{d:'Samstag',i:'⛅',lo:11,hi:17},
+  ];
+  c.innerHTML=`
+  <div class="weather-main">
+    <div class="weather-city">Wildeshausen, DE</div>
+    <div class="weather-icon-big">${w.icon}</div>
+    <div class="weather-temp">${w.temp}°</div>
+    <div class="weather-desc">${w.desc}</div>
+    <div class="weather-range">H:${w.high}° T:${w.low}°</div>
+  </div>
+  <div class="weather-cards">
+    ${[['💧','Luftfeuchtigkeit','68%','Normal'],['💨','Wind','14 km/h','SW'],['🌡️','Gefühlt','${w.temp-2}°','—'],['👁️','Sichtweite','10 km','Gut']].map(([ic,l,v,s])=>`
+      <div class="wx-card"><div class="wx-card-label">${ic} ${l}</div><div class="wx-card-val">${v}</div><div class="wx-card-sub">${s}</div></div>`).join('')}
+  </div>
+  <div class="weather-hourly">
+    <div class="section-header" style="padding:0 0 10px;">Stündlich</div>
+    <div class="hourly-scroll">
+      ${hourly.map(h=>`<div class="hour-item"><div class="h-time">${h.t}</div><div class="h-icon">${h.i}</div><div class="h-temp">${h.tmp}°</div></div>`).join('')}
+    </div>
+  </div>
+  <div class="weather-forecast">
+    <div class="section-header" style="padding:0 0 10px;">7 Tage</div>
+    ${forecast.map(f=>`<div class="forecast-item"><div class="f-day">${f.d}</div><div class="f-icon">${f.i}</div><div class="f-range"><span>${f.lo}°</span> – ${f.hi}°</div></div>`).join('')}
+  </div>`;
+}
+
+// ===== CALCULATOR =====
+function renderCalculator(){
+  const grid=document.getElementById('calcGrid');
+  const btns=[
+    {l:'C',t:'fn'},{l:'±',t:'fn'},{l:'%',t:'fn'},{l:'÷',t:'op'},
+    {l:'7',t:'num'},{l:'8',t:'num'},{l:'9',t:'num'},{l:'×',t:'op'},
+    {l:'4',t:'num'},{l:'5',t:'num'},{l:'6',t:'num'},{l:'−',t:'op'},
+    {l:'1',t:'num'},{l:'2',t:'num'},{l:'3',t:'num'},{l:'+',t:'op'},
+    {l:'0',t:'num zero'},{l:'.',t:'num'},{l:'=',t:'eq'},
+  ];
+  grid.innerHTML=btns.map(b=>`<button class="calc-btn ${b.t}" onclick="calcPress('${b.l}')">${b.l}</button>`).join('');
+}
+function calcPress(k){
+  const res=document.getElementById('calcResult');
+  const expr=document.getElementById('calcExpr');
+  if(k==='C'){OS.calcVal='0';OS.calcExpr='';OS.calcNewVal=true;OS.calcLastOp=null;}
+  else if(k==='±'){OS.calcVal=(parseFloat(OS.calcVal)*-1).toString();}
+  else if(k==='%'){OS.calcVal=(parseFloat(OS.calcVal)/100).toString();}
+  else if(['÷','×','−','+'].includes(k)){
+    OS.calcLastNum=parseFloat(OS.calcVal);OS.calcLastOp=k;OS.calcExpr=OS.calcVal+' '+k;OS.calcNewVal=true;
+  }
+  else if(k==='='){
+    if(OS.calcLastOp&&OS.calcLastNum!==null){
+      const a=OS.calcLastNum,b=parseFloat(OS.calcVal);
+      let r;
+      if(OS.calcLastOp==='÷')r=b?a/b:0;
+      else if(OS.calcLastOp==='×')r=a*b;
+      else if(OS.calcLastOp==='−')r=a-b;
+      else r=a+b;
+      OS.calcExpr=OS.calcLastNum+' '+OS.calcLastOp+' '+OS.calcVal+' =';
+      OS.calcVal=parseFloat(r.toFixed(8)).toString();
+      OS.calcLastOp=null;OS.calcNewVal=true;
+    }
+  }
+  else if(k==='.'){
+    if(OS.calcNewVal){OS.calcVal='0.';OS.calcNewVal=false;}
+    else if(!OS.calcVal.includes('.'))OS.calcVal+='.';
+  }
+  else{
+    if(OS.calcNewVal){OS.calcVal=k;OS.calcNewVal=false;}
+    else OS.calcVal=OS.calcVal==='0'?k:OS.calcVal+k;
+  }
+  res.textContent=OS.calcVal.length>12?parseFloat(OS.calcVal).toExponential(4):OS.calcVal;
+  expr.textContent=OS.calcExpr;
+  if(navigator.vibrate)navigator.vibrate(8);
+}
+
+// ===== APP STORE =====
+const STORE_APPS=[
+  {name:'SpeedDial Pro',ic:'📲',cat:'Produktivität',desc:'Schnellwahl & Kontaktverwaltung',rating:4.8,size:'12 MB',color:'linear-gradient(135deg,#34c759,#30a14e)'},
+  {name:'FluxEdit',ic:'✂️',cat:'Kreativität',desc:'Foto- und Videobearbeitung',rating:4.6,size:'48 MB',color:'linear-gradient(135deg,#ff9f0a,#ff6b0a)'},
+  {name:'SecureVault',ic:'🔐',cat:'Sicherheit',desc:'Passwortmanager & Verschlüsselung',rating:4.9,size:'8 MB',color:'linear-gradient(135deg,#5c9eff,#007aff)'},
+  {name:'SkyRadar',ic:'✈️',cat:'Reise',desc:'Flugverfolgung in Echtzeit',rating:4.5,size:'22 MB',color:'linear-gradient(135deg,#7c5cfc,#5856d6)'},
+  {name:'NutriFlex',ic:'🥗',cat:'Gesundheit',desc:'Kalorientracker & Ernährungsplan',rating:4.3,size:'18 MB',color:'linear-gradient(135deg,#5cffd4,#00c896)'},
+  {name:'CodePad',ic:'💻',cat:'Entwicklung',desc:'Code-Editor mit Syntax-Highlighting',rating:4.7,size:'15 MB',color:'linear-gradient(135deg,#636366,#48484a)'},
+  {name:'Aurora VPN',ic:'🌐',cat:'Netzwerk',desc:'Sicheres & schnelles VPN',rating:4.4,size:'6 MB',color:'linear-gradient(135deg,#ff5c8d,#ff2d55)'},
+  {name:'FluxPay',ic:'💳',cat:'Finanzen',desc:'Zahlungen & Überweisungen',rating:4.8,size:'11 MB',color:'linear-gradient(135deg,#ffd60a,#ff9f0a)'},
+];
+function renderStore(){
+  const body=document.getElementById('storeBody');
+  body.innerHTML=`
+  <div class="store-banner">
+    <h2>FluxoraOS App Store</h2>
+    <p>Entdecke die besten Apps für dein Gerät</p>
+  </div>
+  <div class="store-cats">
+    ${['Alle','Produktivität','Kreativität','Sicherheit','Reise','Gesundheit','Entwicklung'].map((c,i)=>`
+      <div class="store-cat${i===0?' active':''}" onclick="filterStoreCategory(this,'${c}')">${c}</div>`).join('')}
+  </div>
+  <div class="store-section-title">Empfohlen</div>
+  <div class="store-featured" id="storeFeatured">
+    ${STORE_APPS.map((app,i)=>`
+      <div class="store-feat-card">
+        <div class="store-feat-ic" style="background:${app.color};">${app.ic}</div>
+        <div class="store-feat-info">
+          <div class="store-feat-name">${app.name}</div>
+          <div class="store-feat-desc">${app.desc}</div>
+          <div class="store-feat-meta">
+            <div>
+              <div class="store-rating">★ ${app.rating}</div>
+              <div class="store-size">${app.size}</div>
+            </div>
+            <button class="store-get-btn${OS.installedApps[app.name]?' installed':''}" 
+              onclick="installApp('${app.name}',this)">${OS.installedApps[app.name]?'Geöffnet':'Laden'}</button>
+          </div>
+        </div>
+      </div>`).join('')}
+  </div>`;
+}
+function installApp(name,btn){
+  if(OS.installedApps[name]){return;}
+  btn.textContent='...';
+  setTimeout(()=>{
+    OS.installedApps[name]=true;btn.textContent='Geöffnet';btn.classList.add('installed');
+    showDIMsg('✅',`${name} installiert`,2000);
+  },1500+Math.random()*1000);
+}
+function filterStoreCategory(el,cat){
+  document.querySelectorAll('.store-cat').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ===== MUSIC =====
+function renderMusic(){
+  const body=document.getElementById('musicBody');
+  const t=OS.tracks[OS.musicTrack];
+  body.innerHTML=`
+  <div class="player-art">${t.art}</div>
+  <div class="player-song">
+    <div class="player-title">${t.title}</div>
+    <div class="player-artist">${t.artist}</div>
+  </div>
+  <div class="player-progress">
+    <div class="progress-bar-wrap" onclick="seekMusic(event)">
+      <div class="progress-fill" id="musicProgress" style="width:${OS.musicProgress}%;"></div>
+      <div class="progress-dot" style="right:${100-OS.musicProgress}%;"></div>
+    </div>
+    <div class="progress-times">
+      <span id="musicCur">${formatMusicTime(OS.musicProgress/100*210)}</span>
+      <span>${t.dur}</span>
+    </div>
+  </div>
+  <div class="player-controls">
+    <div class="pc-btn" onclick="shuffleMusic()">⇄</div>
+    <div class="pc-btn" onclick="prevTrack()">⏮</div>
+    <button class="pc-play" id="musicPlayBtn" onclick="toggleMusic()">${OS.musicPlaying?'⏸':'▶'}</button>
+    <div class="pc-btn" onclick="nextTrack()">⏭</div>
+    <div class="pc-btn" onclick="">↻</div>
+  </div>
+  <div class="player-queue" style="padding:20px;">
+    <div class="queue-title">Warteschlange</div>
+    ${OS.tracks.map((tr,i)=>`
+      <div class="queue-item" onclick="OS.musicTrack=${i};OS.musicProgress=0;renderMusic();" style="${i===OS.musicTrack?'opacity:1':'opacity:0.6'}">
+        <div class="qi-art" style="${i===OS.musicTrack?'border:2px solid var(--s1);':''}">${tr.art}</div>
+        <div class="qi-info"><div class="qi-name">${tr.title}</div><div class="qi-artist">${tr.artist}</div></div>
+        <div class="qi-dur">${tr.dur}</div>
+      </div>`).join('')}
+  </div>`;
+}
+function toggleMusic(){
+  OS.musicPlaying=!OS.musicPlaying;
+  const btn=document.getElementById('musicPlayBtn');
+  if(btn)btn.textContent=OS.musicPlaying?'⏸':'▶';
+  if(OS.musicPlaying){
+    OS.musicInterval=setInterval(()=>{
+      OS.musicProgress=Math.min(100,OS.musicProgress+100/210);
+      const pf=document.getElementById('musicProgress');
+      const cur=document.getElementById('musicCur');
+      if(pf)pf.style.width=OS.musicProgress+'%';
+      if(cur)cur.textContent=formatMusicTime(OS.musicProgress/100*210);
+      if(OS.musicProgress>=100){nextTrack();}
+    },1000);
+  } else {clearInterval(OS.musicInterval);}
+}
+function prevTrack(){clearInterval(OS.musicInterval);OS.musicPlaying=false;OS.musicTrack=(OS.musicTrack-1+OS.tracks.length)%OS.tracks.length;OS.musicProgress=0;renderMusic();}
+function nextTrack(){clearInterval(OS.musicInterval);OS.musicPlaying=false;OS.musicTrack=(OS.musicTrack+1)%OS.tracks.length;OS.musicProgress=0;renderMusic();}
+function shuffleMusic(){OS.musicTrack=Math.floor(Math.random()*OS.tracks.length);OS.musicProgress=0;renderMusic();}
+function seekMusic(e){const bar=e.currentTarget;OS.musicProgress=(e.offsetX/bar.offsetWidth)*100;renderMusic();}
+function formatMusicTime(s){const m=Math.floor(s/60);const sec=Math.floor(s%60);return `${m}:${sec<10?'0':''}${sec}`;}
+
+// ===== BROWSER =====
+function renderBrowser(){
+  const grid=document.getElementById('bookmarksGrid');
+  const bookmarks=[
+    {ic:'🔍',name:'Google'},{ic:'📺',name:'YouTube'},{ic:'📰',name:'Nachrichten'},
+    {ic:'🛒',name:'Amazon'},{ic:'🌤️',name:'Wetter'},{ic:'🗺️',name:'Maps'},
+    {ic:'💬',name:'Reddit'},{ic:'🎵',name:'Spotify'},
+  ];
+  if(grid)grid.innerHTML=bookmarks.map(b=>`
+    <div class="bookmark" onclick="openURL('${b.name}')">
+      <div class="bm-ic">${b.ic}</div>
+      <span class="bm-name">${b.name}</span>
+    </div>`).join('');
+}
+function promptURL(){
+  const url=prompt('URL oder Suche eingeben:');
+  if(url){document.getElementById('urlText').textContent=url;showDIMsg('🌐','Laden...',1500);}
+}
+function browserReload(){showDIMsg('↻','Seite wird neu geladen',1000);}
+function browserSearch(e){if(e.key==='Enter'){const v=e.target.value;document.getElementById('urlText').textContent=v;showDIMsg('🔍','Suchen: '+v,1500);}}
+function openURL(name){document.getElementById('urlText').textContent=name+'.com';showDIMsg('🌐','Öffne '+name+'...',1500);}
+
+// ===== CLOCK =====
+function renderClock(){
+  renderWorldClock();
+  renderAlarms();
+  renderStopwatch();
+  renderTimer();
+}
+function switchClockTab(tab){
+  document.querySelectorAll('.clock-tab').forEach((t,i)=>{
+    const tabs=['world','alarm','stopwatch','timer'];
+    t.classList.toggle('active',tabs[i]===tab);
+  });
+  document.querySelectorAll('.clock-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('clock'+tab.charAt(0).toUpperCase()+tab.slice(1)).classList.add('active');
+}
+function renderWorldClock(){
+  const el=document.getElementById('clockWorld');
+  const now=new Date();
+  const zones=[
+    {city:'Berlin',tz:'Europe/Berlin',diff:''},
+    {city:'London',tz:'Europe/London',diff:'-1h'},
+    {city:'New York',tz:'America/New_York',diff:'-6h'},
+    {city:'Tokyo',tz:'Asia/Tokyo',diff:'+8h'},
+    {city:'Sydney',tz:'Australia/Sydney',diff:'+10h'},
+  ];
+  el.innerHTML=`
+  <div class="world-clock-big">
+    <div class="wc-time" id="wcMain">${now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}</div>
+    <div class="wc-loc">Berlin, Deutschland</div>
+  </div>
+  <div class="wc-list" style="padding:0 16px 80px;">
+    ${zones.map(z=>`
+      <div class="wc-item">
+        <div class="wc-left">
+          <div class="wc-city">${z.city}</div>
+          <div class="wc-diff">${z.diff||'Aktuelle Zeit'}</div>
+        </div>
+        <div class="wc-right">${new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',timeZone:z.tz})}</div>
+      </div>`).join('')}
+  </div>`;
+  setInterval(()=>{const e=document.getElementById('wcMain');if(e)e.textContent=new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',second:'2-digit'});},1000);
+}
+function renderAlarms(){
+  const el=document.getElementById('clockAlarm');
+  const alarms=[
+    {time:'07:00',label:'Morgens',active:true},
+    {time:'08:30',label:'Work',active:false},
+    {time:'12:00',label:'Mittagessen',active:true},
+  ];
+  el.innerHTML=`
+  <div style="padding:16px;">
+    ${alarms.map((a,i)=>`
+      <div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--r-md);padding:20px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:40px;font-weight:200;color:#fff;font-family:'JetBrains Mono',monospace;">${a.time}</div>
+          <div style="font-size:14px;color:var(--t3);margin-top:4px;">${a.label}</div>
+        </div>
+        <label class="toggle-wrap">
+          <input type="checkbox" ${a.active?'checked':''}>
+          <div class="toggle-slider"></div>
+        </label>
+      </div>`).join('')}
+    <div style="text-align:center;margin-top:20px;">
+      <button class="btn-primary" style="width:auto;padding:12px 32px;">+ Neuer Wecker</button>
+    </div>
+  </div>`;
+}
+function renderStopwatch(){
+  const el=document.getElementById('clockStopwatch');
+  el.innerHTML=`
+  <div class="sw-display" id="swDisplay">00:00.00</div>
+  <div class="sw-btns">
+    <button class="sw-btn secondary" id="swLapBtn" onclick="swLap()" style="opacity:0.5;pointer-events:none;">Runde</button>
+    <button class="sw-btn primary" id="swStartBtn" onclick="swToggle()">Start</button>
+    <button class="sw-btn secondary" id="swResetBtn" onclick="swReset()" style="opacity:0.5;pointer-events:none;">Reset</button>
+  </div>
+  <div class="sw-laps" id="swLaps"></div>`;
+}
+function swToggle(){
+  OS.stopwatchRunning=!OS.stopwatchRunning;
+  document.getElementById('swStartBtn').textContent=OS.stopwatchRunning?'Stopp':'Weiter';
+  document.getElementById('swStartBtn').style.background=OS.stopwatchRunning?'var(--red)':'var(--green)';
+  document.getElementById('swLapBtn').style.opacity=OS.stopwatchRunning?'1':'0.5';
+  document.getElementById('swLapBtn').style.pointerEvents=OS.stopwatchRunning?'all':'none';
+  document.getElementById('swResetBtn').style.opacity='1';
+  document.getElementById('swResetBtn').style.pointerEvents='all';
+  if(OS.stopwatchRunning){
+    OS.stopwatchInterval=setInterval(()=>{
+      OS.stopwatchTime+=10;
+      const ms=OS.stopwatchTime%1000;
+      const s=Math.floor(OS.stopwatchTime/1000)%60;
+      const m=Math.floor(OS.stopwatchTime/60000);
+      const d=document.getElementById('swDisplay');
+      if(d)d.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(Math.floor(ms/10)).padStart(2,'0')}`;
+    },10);
+  } else {clearInterval(OS.stopwatchInterval);}
+}
+function swLap(){
+  OS.stopwatchLaps.push(OS.stopwatchTime);
+  const el=document.getElementById('swLaps');
+  if(el){el.innerHTML=OS.stopwatchLaps.slice().reverse().map((t,i)=>{
+    const ms=t%1000,s=Math.floor(t/1000)%60,m=Math.floor(t/60000);
+    return `<div class="sw-lap"><span class="sw-lap-num">Runde ${OS.stopwatchLaps.length-i}</span><span class="sw-lap-time">${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}.${String(Math.floor(ms/10)).padStart(2,'0')}</span></div>`;
+  }).join('');}
+}
+function swReset(){
+  OS.stopwatchRunning=false;clearInterval(OS.stopwatchInterval);OS.stopwatchTime=0;OS.stopwatchLaps=[];
+  const d=document.getElementById('swDisplay');if(d)d.textContent='00:00.00';
+  const l=document.getElementById('swLaps');if(l)l.innerHTML='';
+  document.getElementById('swStartBtn').textContent='Start';
+  document.getElementById('swStartBtn').style.background='var(--green)';
+}
+function renderTimer(){
+  const el=document.getElementById('clockTimer');
+  OS.timerVal=0;
+  el.innerHTML=`
+  <div style="padding:32px 24px;text-align:center;">
+    <div style="font-size:72px;font-weight:100;color:#fff;font-family:'JetBrains Mono',monospace;margin-bottom:32px;" id="timerDisplay">00:00:00</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;">
+      ${[['−1m','sub',60],['−10s','sub',10],['−1s','sub',1],['+1s','add',1],['+10s','add',10],['+1m','add',60]].map(([l,a,v])=>`
+        <button onclick="adjustTimer('${a}',${v})" style="padding:12px;background:var(--glass);border:1px solid var(--border);border-radius:12px;color:var(--t1);font-size:14px;font-family:'Syne',sans-serif;cursor:pointer;">${l}</button>`).join('')}
+    </div>
+    <div style="display:flex;gap:12px;justify-content:center;">
+      <button class="sw-btn secondary" onclick="timerReset()" id="timerResetBtn" style="opacity:0.5;">Reset</button>
+      <button class="sw-btn primary" onclick="timerToggle()" id="timerStartBtn">Start</button>
+    </div>
+  </div>`;
+}
+function adjustTimer(action,val){
+  if(action==='add')OS.timerVal=Math.min(3600*24,OS.timerVal+val);
+  else OS.timerVal=Math.max(0,OS.timerVal-val);
+  updateTimerDisplay();
+}
+function updateTimerDisplay(){
+  const d=document.getElementById('timerDisplay');
+  if(!d)return;
+  const h=Math.floor(OS.timerVal/3600);const m=Math.floor((OS.timerVal%3600)/60);const s=OS.timerVal%60;
+  d.textContent=`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+function timerToggle(){
+  OS.timerRunning=!OS.timerRunning;
+  document.getElementById('timerStartBtn').textContent=OS.timerRunning?'Pause':'Weiter';
+  document.getElementById('timerStartBtn').style.background=OS.timerRunning?'var(--red)':'var(--green)';
+  document.getElementById('timerResetBtn').style.opacity='1';
+  if(OS.timerRunning){
+    OS.timerInterval=setInterval(()=>{
+      if(OS.timerVal<=0){clearInterval(OS.timerInterval);OS.timerRunning=false;showDIMsg('⏰','Timer abgelaufen!',3000);if(navigator.vibrate)navigator.vibrate([200,100,200,100,200]);return;}
+      OS.timerVal--;updateTimerDisplay();
+    },1000);
+  } else {clearInterval(OS.timerInterval);}
+}
+function timerReset(){clearInterval(OS.timerInterval);OS.timerRunning=false;OS.timerVal=0;updateTimerDisplay();document.getElementById('timerStartBtn').textContent='Start';document.getElementById('timerStartBtn').style.background='var(--green)';}
+
+// ===== FILES =====
+const FILE_DATA=[
+  {ic:'📁',name:'Dokumente',size:'1.2 GB',type:'folder'},
+  {ic:'🖼️',name:'Bilder',size:'2.8 GB',type:'folder'},
+  {ic:'🎵',name:'Musik',size:'4.1 GB',type:'folder'},
+  {ic:'🎬',name:'Videos',size:'8.3 GB',type:'folder'},
+  {ic:'⬇️',name:'Downloads',size:'512 MB',type:'folder'},
+  {ic:'📄',name:'Bericht.pdf',size:'2.4 MB',type:'pdf'},
+  {ic:'📊',name:'Tabelle.xlsx',size:'856 KB',type:'xlsx'},
+  {ic:'📝',name:'Notizen.txt',size:'12 KB',type:'txt'},
+  {ic:'🗜️',name:'Archiv.zip',size:'48 MB',type:'zip'},
+];
+function renderFiles(){
+  const body=document.getElementById('filesBody');
+  body.innerHTML=`
+  <div class="files-header">
+    <span class="files-path">/Benutzer/FluxPhone/</span>
+    <div class="files-view-toggle">
+      <div class="fvt-btn active">⊞</div>
+      <div class="fvt-btn">☰</div>
+    </div>
+  </div>
+  <div class="files-grid" style="padding:0 16px 20px;">
+    ${FILE_DATA.map(f=>`
+      <div class="file-item" onclick="showDIMsg('${f.ic}','${f.name} öffnen',1500)">
+        <div class="fi-ic">${f.ic}</div>
+        <div class="fi-name">${f.name}</div>
+        <div class="fi-size">${f.size}</div>
+      </div>`).join('')}
+  </div>`;
+}
+
+// ===== CONTROL CENTER =====
+const CC_ITEMS=[
+  {key:'wifi',ic:'📶',name:'WLAN',state:'FluxNet 5G'},
+  {key:'bt',ic:'🔵',name:'Bluetooth',state:'Verbunden'},
+  {key:'airplane',ic:'✈️',name:'Flugmodus',state:'Aus'},
+  {key:'nfc',ic:'📡',name:'NFC',state:''},
+  {key:'flashlight',ic:'🔦',name:'Taschenlampe',state:''},
+  {key:'rotation',ic:'🔄',name:'Rotation',state:''},
+  {key:'dnd',ic:'🌙',name:'Bitte nicht stören',state:''},
+  {key:'hotspot',ic:'📱',name:'Hotspot',state:''},
+];
+function openCC(){
+  renderCC();
+  document.getElementById('controlCenter').classList.add('open');
+}
+function closeCC(){document.getElementById('controlCenter').classList.remove('open');}
+function renderCC(){
+  const grid=document.getElementById('ccGrid');
+  grid.innerHTML=CC_ITEMS.map(item=>`
+    <div class="cc-item${OS.ccState[item.key]?' on':''}" onclick="toggleCC('${item.key}')">
+      <div class="cc-ic">${item.ic}</div>
+      <div class="cc-name">${item.name}</div>
+      <div class="cc-state">${OS.ccState[item.key]?(item.state||'Ein'):(item.state||'Aus')}</div>
+    </div>`).join('');
+}
+function toggleCC(key){
+  OS.ccState[key]=!OS.ccState[key];
+  renderCC();
+}
+function updateBrightness(v){
+  OS.brightness=v/100;
+  document.getElementById('frame').style.filter=`brightness(${0.3+OS.brightness*0.7})`;
+}
+function openNotifCenter(){
+  renderNotifCenter();
+  document.getElementById('notifCenter').classList.add('open');
+}
+function closeNotifCenter(){document.getElementById('notifCenter').classList.remove('open');}
+function renderNotifCenter(){
+  const list=document.getElementById('ncList');
+  list.innerHTML=OS.notifications.map(n=>`
+    <div class="nc-notif">
+      <div class="nc-notif-ic" style="background:${n.color}22;">${n.ic}</div>
+      <div class="nc-notif-body">
+        <div class="nc-notif-app">${n.app}</div>
+        <div class="nc-notif-title">${n.title}</div>
+        <div class="nc-notif-text">${n.text}</div>
+        <div class="nc-notif-time">${n.time}</div>
+      </div>
+    </div>`).join('') || '<div style="text-align:center;padding:40px;color:var(--t3);">Keine Benachrichtigungen</div>';
+}
+function clearNotifs(){OS.notifications=[];renderNotifCenter();}
+
+// ===== DYNAMIC ISLAND =====
+function showDIMsg(icon,text,duration=2000){
+  const di=document.getElementById('dynIsland');
+  const content=document.getElementById('diContent');
+  content.innerHTML=`<span style="font-size:20px;">${icon}</span><span style="font-size:13px;font-weight:600;">${text}</span>`;
+  di.classList.add('expand');
+  setTimeout(()=>di.classList.remove('expand'),duration);
+}
+
+// ===== CONTEXT MENU =====
+function showCtxMenu(e,appId){
+  e.preventDefault();
+  const menu=document.getElementById('ctxMenu');
+  menu.style.left=Math.min(e.clientX-document.getElementById('frame').getBoundingClientRect().left,200)+'px';
+  menu.style.top=Math.min(e.clientY-document.getElementById('frame').getBoundingClientRect().top,600)+'px';
+  menu.classList.add('show');
+  menu.dataset.app=appId;
+  setTimeout(()=>{document.addEventListener('click',()=>menu.classList.remove('show'),{once:true});},10);
+}
+function ctxAction(action){
+  const menu=document.getElementById('ctxMenu');menu.classList.remove('show');
+  if(action==='share')showDIMsg('📤','Teilen...',1500);
+  else if(action==='info')showDIMsg('ℹ️',menu.dataset.app,1500);
+  else if(action==='delete')showDIMsg('🗑️','Nicht deinstallierbar',1500);
+}
+
+// ===== GESTURES =====
+function initGestures(){
+  const frame=document.getElementById('frame');
+  let startX,startY,startTime;
+  frame.addEventListener('touchstart',e=>{
+    startX=e.touches[0].clientX-frame.getBoundingClientRect().left;
+    startY=e.touches[0].clientY-frame.getBoundingClientRect().top;
+    startTime=Date.now();
+  },{passive:true});
+  frame.addEventListener('touchend',e=>{
+    const endX=e.changedTouches[0].clientX-frame.getBoundingClientRect().left;
+    const endY=e.changedTouches[0].clientY-frame.getBoundingClientRect().top;
+    const dx=endX-startX,dy=endY-startY;
+    const dt=Date.now()-startTime;
+    // Swipe down from top → Notification Center
+    if(startY<60&&dy>80&&Math.abs(dx)<60&&dt<500&&OS.currentPage==='home'){openNotifCenter();return;}
+    // Swipe up from top → Control Center
+    if(startY<60&&dy>80&&Math.abs(dx)<60&&dt<500&&OS.currentPage!=='home'){}
+    // Swipe right from edge → Back
+    if(startX<30&&dx>60&&Math.abs(dy)<80&&dt<400){
+      if(!['home','lock','boot','setup'].includes(OS.currentPage))goHome();
+    }
+    // Swipe up from bottom → Home
+    if(startY>780&&-dy>60&&Math.abs(dx)<80){
+      if(!['home','lock','boot','setup'].includes(OS.currentPage))goHome();
+    }
+  },{passive:true});
+  // Mouse for desktop
+  frame.addEventListener('mousedown',e=>{
+    startX=e.clientX-frame.getBoundingClientRect().left;
+    startY=e.clientY-frame.getBoundingClientRect().top;
+    startTime=Date.now();
+  });
+  frame.addEventListener('mouseup',e=>{
+    const endX=e.clientX-frame.getBoundingClientRect().left;
+    const endY=e.clientY-frame.getBoundingClientRect().top;
+    const dx=endX-startX,dy=endY-startY;
+    const dt=Date.now()-startTime;
+    if(startY<60&&dy>60&&Math.abs(dx)<60&&dt<500&&OS.currentPage==='home'){openNotifCenter();return;}
+    if(startX<30&&dx>60&&Math.abs(dy)<80&&dt<400&&!['home','lock','boot','setup'].includes(OS.currentPage)){goHome();}
+    if(startY>780&&-dy>60&&Math.abs(dx)<80&&!['home','lock','boot','setup'].includes(OS.currentPage)){goHome();}
+  });
+  // Long press on status bar for control center
+  let longPressTimer;
+  frame.addEventListener('touchstart',e=>{
+    const y=e.touches[0].clientY-frame.getBoundingClientRect().top;
+    if(y<60){longPressTimer=setTimeout(()=>{openCC();},400);}
+  },{passive:true});
+  frame.addEventListener('touchend',()=>clearTimeout(longPressTimer),{passive:true});
+  frame.addEventListener('mousedown',e=>{
+    const y=e.clientY-frame.getBoundingClientRect().top;
+    if(y<60){longPressTimer=setTimeout(()=>{openCC();},400);}
+  });
+  frame.addEventListener('mouseup',()=>clearTimeout(longPressTimer));
+}
+
+// ===== INIT =====
+window.addEventListener('DOMContentLoaded',()=>{
+  initGestures();
+  // Fix all page displays
+  document.querySelectorAll('.page').forEach(p=>{
+    if(!p.classList.contains('active'))p.style.display='none';
+  });
+  startBoot();
+  setTimeout(()=>{
+    document.getElementById('boot').querySelectorAll('*').forEach(el=>{el.style.opacity='1';});
+  },100);
+  // Update map after DOM ready
+  setTimeout(renderMapCanvas,500);
+  // Start real-time clock
+  const updateClock=()=>{
+    const now=new Date();
+    const t=now.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+    const d=now.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
+    document.querySelectorAll('#lockClockBig').forEach(e=>e.textContent=t);
+    document.querySelectorAll('#homeClockT').forEach(e=>e.textContent=t);
+    document.querySelectorAll('#homeSbTime,#lockTime2').forEach(e=>e.textContent=t);
+    document.querySelectorAll('#homeClockD,#lockDateBig').forEach(e=>e.textContent=d);
+  };
+  updateClock();setInterval(updateClock,1000);
+});
+</script>
+</body>
+</html>
